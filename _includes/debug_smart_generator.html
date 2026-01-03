@@ -1,0 +1,81 @@
+{% comment %}Debug Smart Generator{% endcomment %}
+
+<div style="border: 1px solid red; padding: 10px; margin: 10px;">
+<h3>Debug Information</h3>
+
+{% assign semester_start_str = site.data.course_schedule.course_schedule.semester_start %}
+{% assign semester_end_str = site.data.course_schedule.course_schedule.semester_end %}
+{% assign class_days = site.data.course_schedule.course_schedule.class_days %}
+
+<p><strong>Semester Start:</strong> {{ semester_start_str }} ({{ semester_start_str | date: "%A" }})</p>
+<p><strong>Semester End:</strong> {{ semester_end_str }}</p>
+
+<h4>Configured Class Days:</h4>
+{% for class_day in class_days %}
+<p>- {{ class_day.day }} at {{ class_day.time }}</p>
+{% endfor %}
+
+{% comment %} 创建星期名称到数字的映射 {% endcomment %}
+{% assign day_name_to_num = "sunday:0,monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6" | split: "," %}
+
+{% comment %} 获取配置的上课日的数字 {% endcomment %}
+{% assign class_day_numbers = "" | split: "" %}
+<h4>Class Day Numbers:</h4>
+{% for class_day in class_days %}
+    {% for day_pair in day_name_to_num %}
+        {% assign parts = day_pair | split: ":" %}
+        {% if parts[0] == class_day.day %}
+            {% assign day_num = parts[1] | plus: 0 %}
+            {% assign class_day_numbers = class_day_numbers | push: day_num %}
+            <p>{{ class_day.day }} = {{ day_num }}</p>
+            {% break %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{% comment %} 生成学期内所有上课日期 {% endcomment %}
+{% assign semester_start_timestamp = semester_start_str | date: "%s" | plus: 0 %}
+{% assign semester_end_timestamp = semester_end_str | date: "%s" | plus: 0 %}
+
+<h4>Generated Class Dates:</h4>
+{% assign all_class_dates = "" | split: "" %}
+
+{% for day_offset in (0..60) %}
+    {% assign additional_seconds = day_offset | times: 86400 %}
+    {% assign check_timestamp = semester_start_timestamp | plus: additional_seconds %}
+    {% if check_timestamp > semester_end_timestamp %}
+        {% break %}
+    {% endif %}
+    
+    {% assign check_day_num = check_timestamp | date: "%w" | plus: 0 %}
+    {% assign check_date = check_timestamp | date: "%Y-%m-%d" %}
+    {% assign check_day_name = check_timestamp | date: "%A" %}
+    
+    <p>Checking {{ check_date }} ({{ check_day_name }}, day#{{ check_day_num }})</p>
+    
+    {% comment %} 检查这一天是否是上课日 {% endcomment %}
+    {% for class_day_num in class_day_numbers %}
+        {% assign class_day_num_int = class_day_num | plus: 0 %}
+        <p>&nbsp;&nbsp;Comparing {{ check_day_num }} with {{ class_day_num_int }}</p>
+        {% if check_day_num == class_day_num_int %}
+            {% assign all_class_dates = all_class_dates | push: check_date %}
+            <p>✓ {{ check_date }} ({{ check_day_name }}) - MATCH!</p>
+            {% break %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+<p><strong>Total class dates found:</strong> {{ all_class_dates.size }}</p>
+
+<h4>Week Data from Config:</h4>
+{% for week_data in site.data.course_schedule.lectures %}
+<p><strong>Week {{ week_data.week }}:</strong></p>
+{% if week_data.tuesday %}
+<p>&nbsp;&nbsp;Tuesday: {{ week_data.tuesday.topic }}</p>
+{% endif %}
+{% if week_data.thursday %}
+<p>&nbsp;&nbsp;Thursday: {{ week_data.thursday.topic }}</p>
+{% endif %}
+{% endfor %}
+
+</div>

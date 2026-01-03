@@ -1,0 +1,116 @@
+{% comment %}
+This include generates the complete schedule by combining:
+1. Auto-generated lecture dates from course_schedule.yml
+2. Manual additional events from additional_events.yml
+{% endcomment %}
+
+{% assign semester_start_str = site.data.course_schedule.course_schedule.semester_start %}
+{% assign semester_end_str = site.data.course_schedule.course_schedule.semester_end %}
+{% assign all_schedule_items = "" | split: "" %}
+
+{% comment %} Generate lecture dates automatically {% endcomment %}
+{% for week_data in site.data.course_schedule.lectures %}
+    {% assign week_num = week_data.week | minus: 1 %}
+    {% assign days_from_start = week_num | times: 7 %}
+    
+    {% comment %} Calculate actual date for this week {% endcomment %}
+    {% assign base_date = semester_start_str | date: "%s" | plus: 0 %}
+    {% assign additional_seconds = days_from_start | times: 86400 %}
+    {% assign week_start_timestamp = base_date | plus: additional_seconds %}
+    {% assign week_start_date = week_start_timestamp | date: "%Y-%m-%d" %}
+    
+    {% comment %} Check if this date is before semester end {% endcomment %}
+    {% assign end_date = semester_end_str | date: "%s" | plus: 0 %}
+    {% if week_start_timestamp <= end_date %}
+        
+        {% comment %} Tuesday lectures {% endcomment %}
+        {% if week_data.tuesday %}
+            {% assign tuesday_date = week_start_date %}
+            {% assign item_key = tuesday_date | append: "|lecture|" | append: week_data.tuesday.topic %}
+            {% assign all_schedule_items = all_schedule_items | push: item_key %}
+        {% endif %}
+        
+        {% comment %} Thursday lectures (if enabled) {% endcomment %}
+        {% if week_data.thursday %}
+            {% assign thursday_timestamp = week_start_timestamp | plus: 172800 %}  <!-- +2 days in seconds -->
+            {% assign thursday_date = thursday_timestamp | date: "%Y-%m-%d" %}
+            {% assign thursday_timestamp_int = thursday_timestamp | plus: 0 %}
+            {% if thursday_timestamp_int <= end_date %}
+                {% assign item_key = thursday_date | append: "|lecture|" | append: week_data.thursday.topic %}
+                {% assign all_schedule_items = all_schedule_items | push: item_key %}
+            {% endif %}
+        {% endif %}
+        
+    {% endif %}
+{% endfor %}
+
+{% comment %} Add manual additional events {% endcomment %}
+{% for event in site.data.additional_events.additional_events %}
+    {% assign item_key = event.date | append: "|" | append: event.type | append: "|" | append: event.topic %}
+    {% assign all_schedule_items = all_schedule_items | push: item_key %}
+{% endfor %}
+
+{% comment %} Sort by date (YYYY-MM-DD format allows string sorting) {% endcomment %}
+{% assign sorted_items = all_schedule_items | sort %}
+
+{% comment %} Render the sorted schedule {% endcomment %}
+{% for item in sorted_items %}
+    {% assign parts = item | split: "|" %}
+    {% assign item_date = parts[0] %}
+    {% assign item_type = parts[1] %}
+    {% assign item_topic = parts[2] %}
+    
+    <li class="table-row table-row-{{ item_type }}">
+        <div class="col col-date">
+            <strong>{{ item_date | date: "%m/%d" }}</strong><br>
+            <span class="day-name">{{ item_date | date: "%a" }}</span>
+        </div>
+        <div class="col col-topic">
+            <strong>{{ item_topic }}</strong>
+            {% if item_type != "lecture" %}
+                <br><span class="event-type">{{ item_type | replace: "_", " " | capitalize }}</span>
+            {% endif %}
+        </div>
+        <div class="col col-materials">
+            {% comment %} Find materials for this item {% endcomment %}
+            {% if item_type == "lecture" %}
+                {% comment %} Find lecture materials by matching date {% endcomment %}
+                {% for week_data in site.data.course_schedule.lectures %}
+                    {% assign week_num = week_data.week | minus: 1 %}
+                    {% assign days_from_start = week_num | times: 7 %}
+                    {% assign base_date = semester_start_str | date: "%s" | plus: 0 %}
+                    {% assign additional_seconds = days_from_start | times: 86400 %}
+                    {% assign week_start_timestamp = base_date | plus: additional_seconds %}
+                    {% assign tuesday_date = week_start_timestamp | date: "%Y-%m-%d" %}
+                    {% assign thursday_timestamp = week_start_timestamp | plus: 172800 %}
+                    {% assign thursday_date = thursday_timestamp | date: "%Y-%m-%d" %}
+                    
+                    {% if item_date == tuesday_date and week_data.tuesday and week_data.tuesday.materials %}
+                        <ul class="material-list">
+                        {% for material in week_data.tuesday.materials %}
+                            <li><a href="{{ material.url }}" target="_blank">{{ material.name }}</a></li>
+                        {% endfor %}
+                        </ul>
+                    {% elsif item_date == thursday_date and week_data.thursday and week_data.thursday.materials %}
+                        <ul class="material-list">
+                        {% for material in week_data.thursday.materials %}
+                            <li><a href="{{ material.url }}" target="_blank">{{ material.name }}</a></li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% comment %} Find additional event materials {% endcomment %}
+                {% for event in site.data.additional_events.additional_events %}
+                    {% if event.date == item_date and event.topic == item_topic and event.materials %}
+                        <ul class="material-list">
+                        {% for material in event.materials %}
+                            <li><a href="{{ material.url }}" target="_blank">{{ material.name }}</a></li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </li>
+{% endfor %}

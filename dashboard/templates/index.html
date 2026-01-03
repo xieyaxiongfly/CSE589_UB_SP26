@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Home{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard Overview</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-calendar fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Schedule Management</h5>
+                <p class="card-text">Add lectures, assignments, and manage course timeline</p>
+                <a href="{{ url_for('schedule') }}" class="btn btn-primary">Manage Schedule</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                <h5 class="card-title">People Management</h5>
+                <p class="card-text">Manage instructors and teaching assistants</p>
+                <a href="{{ url_for('people') }}" class="btn btn-success">Manage People</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-cog fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Site Configuration</h5>
+                <p class="card-text">Update course information and site settings</p>
+                <a href="{{ url_for('config') }}" class="btn btn-warning">Configure</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-globe fa-3x text-info mb-3"></i>
+                <h5 class="card-title">View Website</h5>
+                <p class="card-text">Preview your course website</p>
+                <a href="../index.html" target="_blank" class="btn btn-info">View Site</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Common Tasks:</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="{{ url_for('schedule') }}" class="text-decoration-none">
+                                    <i class="fas fa-calendar-alt text-primary me-2"></i>Set Course Schedule & Dates
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('schedule') }}#add-lecture" class="text-decoration-none">
+                                    <i class="fas fa-plus-circle text-primary me-2"></i>Add New Lecture
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('people') }}#add-ta" class="text-decoration-none">
+                                    <i class="fas fa-user-plus text-success me-2"></i>Add Teaching Assistant
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="{{ url_for('config') }}" class="text-decoration-none">
+                                    <i class="fas fa-edit text-warning me-2"></i>Update Course Info
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Instructions:</h6>
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>Note:</strong> Changes made here will directly update your Jekyll site files. 
+                                Make sure to rebuild your Jekyll site after making changes to see them live.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

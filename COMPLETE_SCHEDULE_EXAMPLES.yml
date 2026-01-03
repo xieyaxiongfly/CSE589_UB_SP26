@@ -1,0 +1,190 @@
+# ============================================================================
+# COMPLETE SCHEDULE CONFIGURATION EXAMPLES
+# ============================================================================
+
+# Example 1: 每周一次课 (Only Tuesday)
+# ----------------------------------------------------------------------------
+course_schedule_example_1:
+  semester_start: "2025-08-26"  # 第一个Tuesday
+  semester_end: "2025-12-09"    
+  
+  class_days:
+    - day: "tuesday"
+      time: "14:00"
+
+lectures_example_1:
+  - week: 1
+    tuesday:
+      topic: "Course Introduction"
+      materials:
+        - name: "Syllabus"
+          url: "/static_files/syllabus.pdf"
+  - week: 2
+    tuesday:
+      topic: "Fundamentals"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/02.pdf"
+
+# Example 2: 每周两次课 (Tuesday + Thursday)  
+# ----------------------------------------------------------------------------
+course_schedule_example_2:
+  semester_start: "2025-08-26"  # 第一个Tuesday
+  semester_end: "2025-12-11"    # 最后一个Thursday
+  
+  class_days:
+    - day: "tuesday"
+      time: "14:00"
+    - day: "thursday"
+      time: "14:00"
+
+lectures_example_2:
+  - week: 1
+    tuesday:
+      topic: "Introduction to Mobile Sensing"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/01_intro.pdf"
+    thursday:
+      topic: "Mobile Networks Overview"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/02_networks.pdf"
+  - week: 2
+    tuesday:
+      topic: "Wireless Communication"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/03_wireless.pdf"
+    thursday:
+      topic: "Sensor Technologies"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/04_sensors.pdf"
+
+# Example 3: 每周三次课 (Monday + Wednesday + Friday)
+# ----------------------------------------------------------------------------
+course_schedule_example_3:
+  semester_start: "2025-08-25"  # 第一个Monday
+  semester_end: "2025-12-12"    # 最后一个Friday
+  
+  class_days:
+    - day: "monday"
+      time: "10:00"
+    - day: "wednesday"
+      time: "10:00"  
+    - day: "friday"
+      time: "10:00"
+
+lectures_example_3:
+  - week: 1
+    monday:
+      topic: "Course Introduction"
+      materials:
+        - name: "Syllabus"
+          url: "/static_files/syllabus.pdf"
+    wednesday:
+      topic: "Basic Concepts"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/01_basic.pdf"
+    friday:
+      topic: "Fundamentals Review"
+      materials:
+        - name: "Review Materials"
+          url: "/static_files/reviews/week1.pdf"
+
+# Example 4: 灵活安排 (不同周可以有不同的课程安排)
+# ----------------------------------------------------------------------------
+course_schedule_example_4:
+  semester_start: "2025-08-25"  
+  semester_end: "2025-12-12"    
+  
+  class_days:
+    - day: "monday"
+      time: "14:00"
+    - day: "wednesday"
+      time: "14:00"
+    - day: "friday"
+      time: "14:00"
+
+lectures_example_4:
+  - week: 1
+    # 第一周只有Monday和Wednesday
+    monday:
+      topic: "Course Introduction"
+      materials:
+        - name: "Syllabus"
+          url: "/static_files/syllabus.pdf"
+    wednesday:
+      topic: "Overview"
+      materials:
+        - name: "Overview Slides"
+          url: "/static_files/lectures/overview.pdf"
+    # 没有Friday课
+    
+  - week: 2
+    # 第二周有全部三次课
+    monday:
+      topic: "Theory Part 1"
+      materials:
+        - name: "Theory Slides"
+          url: "/static_files/lectures/theory1.pdf"
+    wednesday:
+      topic: "Theory Part 2"
+      materials:
+        - name: "Theory Slides"
+          url: "/static_files/lectures/theory2.pdf"
+    friday:
+      topic: "Practice Session"
+      materials:
+        - name: "Lab Instructions"
+          url: "/static_files/labs/lab1.pdf"
+          
+  - week: 3
+    # 第三周只有Friday课（特殊安排）
+    friday:
+      topic: "Guest Lecture"
+      materials:
+        - name: "Guest Speaker Bio"
+          url: "/static_files/speakers/guest1.pdf"
+
+# Example 5: 周末课程 (Saturday)
+# ----------------------------------------------------------------------------
+course_schedule_example_5:
+  semester_start: "2025-08-30"  # 第一个Saturday
+  semester_end: "2025-12-13"    
+  
+  class_days:
+    - day: "saturday"
+      time: "09:00"
+
+lectures_example_5:
+  - week: 1
+    saturday:
+      topic: "Intensive Workshop Day 1"
+      materials:
+        - name: "Workshop Materials"
+          url: "/static_files/workshops/day1.pdf"
+  - week: 2
+    saturday:
+      topic: "Intensive Workshop Day 2"
+      materials:
+        - name: "Workshop Materials"
+          url: "/static_files/workshops/day2.pdf"
+
+# ============================================================================
+# 使用说明:
+# ============================================================================
+
+# 1. 选择你需要的配置模式，复制到你的 _data/course_schedule.yml 文件中
+# 2. 将 course_schedule_example_X 改名为 course_schedule
+# 3. 将 lectures_example_X 改名为 lectures  
+# 4. 根据你的实际需求修改日期、时间和课程内容
+# 5. 确保 semester_start 是你想要的第一节课的正确日期
+
+# 重要提示:
+# - semester_start 必须是你设置的第一个上课日的日期
+# - 系统会自动计算后续周次的日期
+# - 你可以跳过任何周次或任何天数的课程
+# - 支持所有7天: monday, tuesday, wednesday, thursday, friday, saturday, sunday

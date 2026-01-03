@@ -1,0 +1,19 @@
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="footer-content">
+      <div class="footer-address">
+        {{ site.address | newline_to_br }}
+      </div>
+      
+      {% if site.schoolurl %}
+      <div class="footer-link">
+        <a href="{{site.schoolurl}}">
+          <i class="fas fa-globe" style="color:gray"></i> {{site.schoolurl |  remove: "https://" | remove: "http://" | remove: "www." }}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</footer>

@@ -1,0 +1,72 @@
+# Course Schedule Configuration
+course_schedule:
+  # Start and end dates for the semester
+  semester_start: "2025-08-25"  # Semester start (can be any day)
+  semester_end: "2025-12-08"    # Last Thursday of semester
+  
+  # Class days and times
+  class_days:
+    - day: "tuesday"
+      time: "14:00"
+    - day: "thursday"
+      time: "14:00"
+  
+  # Holidays and breaks (no classes on these dates)
+  holidays:
+    - "2025-11-27"  # Thanksgiving
+    - "2025-11-29"  # Day after Thanksgiving
+    # Add more holidays as needed
+
+# Weekly lectures - just define topic and materials, dates will be auto-generated
+lectures:
+  - week: 1
+    tuesday:
+      topic: "Introduction to Mobile Sensing"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/01_intro_slides.pdf"
+        - name: "Reading"
+          url: "https://example.com/paper1.pdf"
+    thursday:
+      topic: "Mobile Networks Overview"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/02_networks_slides.pdf"
+
+  - week: 2
+    tuesday:
+      topic: "Wireless Communication Fundamentals"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/03_wireless_slides.pdf"
+        - name: "Research Paper"
+          url: "https://example.com/wireless_paper.pdf"
+    thursday:
+      topic: "Sensor Technologies"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/04_sensors_slides.pdf"
+
+  - week: 3
+    tuesday:
+      topic: "IoT Systems Architecture"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/05_iot_slides.pdf"
+
+  - week: 4
+    tuesday:
+      topic: "IoT Systems Architecture"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/05_iot_slides.pdf"
+
+  - week: 5
+    tuesday:
+      topic: "IoT Systems Architecture"
+      materials:
+        - name: "Lecture Slides"
+          url: "/static_files/lectures/05_iot_slides.pdf"
+
+
+# Add more weeks as needed...

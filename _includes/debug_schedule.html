@@ -1,0 +1,51 @@
+{% comment %}Debug version to check data{% endcomment %}
+
+<p>Debugging schedule generation...</p>
+
+<p>Semester Start: {{ site.data.course_schedule.course_schedule.semester_start }}</p>
+<p>Semester End: {{ site.data.course_schedule.course_schedule.semester_end }}</p>
+
+<h4>Course Schedule Data:</h4>
+{% for week_data in site.data.course_schedule.lectures %}
+<p>Week {{ week_data.week }}:</p>
+{% if week_data.tuesday %}
+<p>&nbsp;&nbsp;Tuesday: {{ week_data.tuesday.topic }}</p>
+{% endif %}
+{% if week_data.thursday %}
+<p>&nbsp;&nbsp;Thursday: {{ week_data.thursday.topic }}</p>
+{% endif %}
+{% endfor %}
+
+<h4>Additional Events:</h4>
+{% for event in site.data.additional_events.additional_events %}
+<p>{{ event.date }} - {{ event.type }} - {{ event.topic }}</p>
+{% endfor %}
+
+<h4>Generated Items:</h4>
+{% assign semester_start_str = site.data.course_schedule.course_schedule.semester_start %}
+{% assign all_schedule_items = "" | split: "" %}
+
+{% comment %} Generate lecture dates automatically {% endcomment %}
+{% for week_data in site.data.course_schedule.lectures %}
+    {% assign week_num = week_data.week | minus: 1 %}
+    {% assign days_from_start = week_num | times: 7 %}
+    {% assign base_date = semester_start_str | date: "%s" | plus: 0 %}
+    {% assign additional_seconds = days_from_start | times: 86400 %}
+    {% assign week_start_timestamp = base_date | plus: additional_seconds %}
+    {% assign week_start_date = week_start_timestamp | date: "%Y-%m-%d" %}
+    
+    {% if week_data.tuesday %}
+        {% assign item_key = week_start_date | append: "|lecture|" | append: week_data.tuesday.topic %}
+        {% assign all_schedule_items = all_schedule_items | push: item_key %}
+        <p>Generated: {{ item_key }}</p>
+    {% endif %}
+{% endfor %}
+
+{% comment %} Add manual additional events {% endcomment %}
+{% for event in site.data.additional_events.additional_events %}
+    {% assign item_key = event.date | append: "|" | append: event.type | append: "|" | append: event.topic %}
+    {% assign all_schedule_items = all_schedule_items | push: item_key %}
+    <p>Added: {{ item_key }}</p>
+{% endfor %}
+
+<p>Total items: {{ all_schedule_items.size }}</p>
