@@ -1,55 +1,44 @@
-# Site settings
-course_name: "CSE610 Special Topics on Mobile Sensing & Mobile Networks"
-course_description: "This course explores wireless technologies, mobile networking, and mobile sensing with applications in IoT, signal processing, and human-computer interaction. Students will engage with cutting-edge research in mobile computing systems."
-course_semester: "Fall 2025"
-
-baseurl: "/CSE610_UB_fall25" # the subpath of your site, e.g. /blog/
-url: "https://xieyaxiongfly.github.io" # the base hostname & protocol for your site
-
-schoolname: "University at Buffalo, SUNY"
-schoolurl: "https://buffalo.edu" 
-
-# Logo configuration
-logo_path: "/_images/UB_logo.jpg"
+course_name: CSE589
+course_description: This course explores wireless technologies, mobile networking,
+  and mobile sensing with applications in IoT, signal processing, and human-computer
+  interaction. Students will engage with cutting-edge research in mobile computing
+  systems.
+course_semester: Spring 2026
+baseurl: /CSE589_UB_SP26
+url: https://xieyaxiongfly.github.io
+schoolname: University at Buffalo, SUNY
+schoolurl: https://buffalo.edu
+logo_path: /_images/UB_logo.jpg
 logo_width: 75
+address: 'Computer Science and Engineering
 
-address: |
-    Computer Science and Engineering
-    University at Buffalo, SUNY
-    Buffalo, NY, USA
+  University at Buffalo, SUNY
 
-# Set your Google Analytics tracking ID (set up yours at http://www.google.com/analytics/)
-# google_analytics: UA-XXXXXXXX-X
+  Buffalo, NY, USA
 
-### Do not change the followings unless you know what you are doing ###
-
-# Build settings
+  '
 markdown: kramdown
-
-# Other options
 permalink: blog/:year/:month/:title
-excerpt_separator: "<!--more-->"
-
-include: ['_images', '_css']
-exclude: ['develop']
-
-dateformat: "%m/%d/%Y"
-
+excerpt_separator: <!--more-->
+include:
+- _images
+- _css
+exclude:
+- develop
+dateformat: '%m/%d/%Y'
 future: true
 collections:
-    events:
-        output: true
-    lectures:
-        output: true
-    assignments:
-        output: true
-    announcements:
-        output: false
-
-
+  events:
+    output: true
+  lectures:
+    output: true
+  assignments:
+    output: true
+  announcements:
+    output: false
 defaults:
-  - scope:
-      path: ""
-      type: "assignments"
-    values:
-      layout: "assignment"
+- scope:
+    path: ''
+    type: assignments
+  values:
+    layout: assignment
