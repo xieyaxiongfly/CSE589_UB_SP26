@@ -1,23 +1,16 @@
 instructors:
-  - name: Yaxiong Xie
-    profile_pic: /_images/pp/yaxiong.jpeg
-    webpage: https://xieyaxiongfly.github.io
-    title: Assistant Professor
-    email: yaxiongx@buffalo.edu
-    office: Davis Hall 321
-    office_hours: "By appointment - please email to schedule"
-    #bio: "Dr. Yaxiong Xie is an Assistant Professor in the Department of Computer Science and Engineering at the University at Buffalo. His research interests include mobile sensing, wireless networks, and IoT systems. He received his Ph.D. in Computer Science from University of Wisconsin-Madison."
-
-teaching_assistants:
-#  - name: Sarah Chen
-#    profile_pic: /_images/pp/ta1.jpeg
-#    email: sarahchen@buffalo.edu
-#    office_hours: "Mondays 2:00-4:00 PM, Wednesdays 10:00-12:00 PM"
-#    webpage: https://example.com/sarahchen
-#    bio: "PhD student in Computer Science specializing in IoT systems and wireless networks."
-#  
-#  - name: Michael Rodriguez  
-#    profile_pic: /_images/pp/ta2.jpeg
-#    email: mrodriguez@buffalo.edu
-#    office_hours: "Tuesdays 1:00-3:00 PM, Fridays 11:00 AM-1:00 PM"
-#    bio: "MS student with expertise in mobile sensing and signal processing."
+- name: Yaxiong Xie
+  title: Assistant Professor
+  email: yaxiongx@buffalo.edu
+  office: Davis Hall 321
+  office_hours: By appointment - please email to schedule
+  webpage: https://xieyaxiongfly.github.io
+  profile_pic: /_images/pp/yaxiong.jpeg
+- name: Chunming Qiao
+  title: ' SUNY Distinguished Professor'
+  email: qiao@buffalo.edu
+  office: 312 Davis Hall
+  office_hours: ''
+  webpage: https://cse.buffalo.edu/~qiao/index.htm
+  profile_pic: /_images/pp/20260112_222700_chunming.jpg
+teaching_assistants: null

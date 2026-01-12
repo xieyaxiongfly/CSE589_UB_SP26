@@ -84,42 +84,37 @@
             
             <div class="row mt-3">
                 <div class="col-12">
-                    <label for="holidays" class="form-label">Holidays (no classes on these dates)</label>
-                    <textarea class="form-control" id="holidays" name="holidays" rows="3" 
-                              placeholder="Enter dates in YYYY-MM-DD format, one per line">{% if schedule.course_schedule and schedule.course_schedule.holidays %}{% for holiday in schedule.course_schedule.holidays %}{{ holiday }}
-{% endfor %}{% endif %}</textarea>
-                    <div class="form-text">Enter holiday dates in YYYY-MM-DD format, one per line (e.g., 2025-11-27)</div>
+                    <label class="form-label">Holidays (no classes on these dates)</label>
+                    <div id="holidays-container">
+                        {% if schedule.course_schedule and schedule.course_schedule.holidays %}
+                            {% for holiday in schedule.course_schedule.holidays %}
+                                <div class="row mb-2 holiday-row">
+                                    <div class="col-md-6">
+                                        <input type="date" class="form-control" name="holidays[]" value="{{ holiday }}" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-outline-danger remove-holiday">Remove</button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="row mb-2 holiday-row">
+                                <div class="col-md-6">
+                                    <input type="date" class="form-control" name="holidays[]">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-outline-danger remove-holiday">Remove</button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="add-holiday">Add Holiday</button>
+                    <div class="form-text">Pick dates when there is no class (e.g., 2026-03-16).</div>
                 </div>
             </div>
             
-            <div class="mt-3">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="auto_manage_lectures" name="auto_manage_lectures" checked>
-                            <label class="form-check-label" for="auto_manage_lectures">
-                                <strong>Smart Lecture Management</strong>
-                            </label>
-                            <div class="form-text">
-                                When enabled, the system will automatically:
-                                <ul class="mb-0 mt-1">
-                                    <li>Add placeholder lectures for new class days</li>
-                                    <li>Redistribute content when removing class days</li>
-                                    <li>Keep your lecture content organized</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <button type="submit" class="btn btn-warning">Update Schedule Settings</button>
-                        <br>
-                        <div class="btn-group mt-2" role="group">
-                            <button type="button" class="btn btn-outline-success btn-sm" onclick="fillMissingDays()">Fill Missing Days</button>
-                            <button type="button" class="btn btn-outline-info btn-sm" onclick="generateWeeks()">Generate Weeks</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="cleanupLectures()">Cleanup</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-warning">Update Schedule Settings</button>
             </div>
         </form>
     </div>
@@ -168,252 +163,119 @@
     <div class="card-body">
         <form method="POST" action="{{ url_for('add_lecture') }}">
             <div class="row">
-                <div class="col-md-3">
-                    <label for="week" class="form-label">Week</label>
-                    <input type="number" class="form-control" id="week" name="week" min="1" required>
-                </div>
-                <div class="col-md-3">
-                    <label for="day" class="form-label">Day</label>
-                    <select class="form-select" id="day" name="day" required>
-                        <option value="">Select Day</option>
-                        {% if schedule.course_schedule and schedule.course_schedule.class_days %}
-                            {% for class_day in schedule.course_schedule.class_days %}
-                                <option value="{{ class_day.day }}">{{ class_day.day.title() }}</option>
-                            {% endfor %}
-                        {% else %}
-                            <option value="tuesday">Tuesday</option>
-                            <option value="thursday">Thursday</option>
-                        {% endif %}
-                    </select>
-                </div>
-                <div class="col-md-6">
+                <div class="col-md-10">
                     <label for="topic" class="form-label">Topic</label>
                     <input type="text" class="form-control" id="topic" name="topic" required>
                 </div>
-            </div>
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Add Lecture</button>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Add Material Form -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">Add Material to Existing Lecture</h5>
-    </div>
-    <div class="card-body">
-        <form method="POST" action="{{ url_for('add_material') }}">
-            <div class="row">
-                <div class="col-md-2">
-                    <label for="material_week" class="form-label">Week</label>
-                    <input type="number" class="form-control" id="material_week" name="week" min="1" required>
-                </div>
-                <div class="col-md-2">
-                    <label for="material_day" class="form-label">Day</label>
-                    <select class="form-select" id="material_day" name="day" required>
-                        <option value="">Select Day</option>
-                        {% if schedule.course_schedule and schedule.course_schedule.class_days %}
-                            {% for class_day in schedule.course_schedule.class_days %}
-                                <option value="{{ class_day.day }}">{{ class_day.day.title() }}</option>
-                            {% endfor %}
-                        {% else %}
-                            <option value="tuesday">Tuesday</option>
-                            <option value="thursday">Thursday</option>
-                        {% endif %}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="material_name" class="form-label">Material Name</label>
-                    <input type="text" class="form-control" id="material_name" name="material_name" placeholder="e.g., Lecture Slides" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="material_url" class="form-label">URL</label>
-                    <input type="url" class="form-control" id="material_url" name="material_url" placeholder="https://..." required>
-                </div>
-            </div>
-            <div class="mt-3">
-                <button type="submit" class="btn btn-success">Add Material</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Current Schedule -->
+<!-- Lecture Sequence -->
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0">Current Course Schedule</h5>
+        <h5 class="mb-0">Lecture Sequence</h5>
     </div>
     <div class="card-body">
-        {% if schedule.lectures %}
-            {% for lecture in schedule.lectures %}
-                <div class="card mb-3">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0">Week {{ lecture.week }}</h6>
-                    </div>
+        {% if schedule.lecture_sequence %}
+            {% for lecture in schedule.lecture_sequence %}
+                <div class="card mb-3 lecture-item" data-lecture-index="{{ loop.index0 }}">
                     <div class="card-body">
-                        <div class="row">
-                            {% if lecture.tuesday %}
-                                <div class="col-md-6">
-                                    <div class="border p-3 rounded lecture-card" data-week="{{ lecture.week }}" data-day="tuesday">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="text-primary mb-0">Tuesday</h6>
-                                            <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary edit-lecture-btn">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <form method="POST" action="{{ url_for('delete_lecture') }}" class="d-inline">
-                                                    <input type="hidden" name="week" value="{{ lecture.week }}">
-                                                    <input type="hidden" name="day" value="tuesday">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
-                                                        <i class="fas fa-trash"></i>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">Lecture {{ loop.index }}</h6>
+                            <div class="btn-group" role="group">
+                                <form method="POST" action="{{ url_for('move_lecture') }}" class="d-inline move-lecture-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="direction" value="up">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary move-lecture-btn" {% if loop.first %}disabled{% endif %} title="Move up">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('move_lecture') }}" class="d-inline move-lecture-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="direction" value="down">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary move-lecture-btn" {% if loop.last %}disabled{% endif %} title="Move down">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-outline-secondary edit-lecture-btn">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('delete_lecture') }}" class="d-inline delete-lecture-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="border p-3 rounded lecture-card" data-index="{{ loop.index0 }}">
+                            {% set lecture_index = loop.index0 %}
+                            <!-- Display Mode -->
+                            <div class="lecture-display">
+                                <p class="mb-2"><strong class="lecture-topic">{{ lecture.topic }}</strong></p>
+                                <div class="materials-list">
+                                    {% if lecture.materials %}
+                                        <ul class="list-unstyled mb-0">
+                                            {% for material in lecture.materials %}
+                                                <li class="small mb-1 d-flex justify-content-between align-items-center">
+                                                    <a href="{{ material.url }}" target="_blank">{{ material.name }}</a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-material-btn"
+                                                            data-lecture-index="{{ lecture_index }}" data-index="{{ loop.index0 }}">
+                                                        <i class="fas fa-times"></i>
                                                     </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Display Mode -->
-                                        <div class="lecture-display">
-                                            <p class="mb-2"><strong class="lecture-topic">{{ lecture.tuesday.topic }}</strong></p>
-                                            <div class="materials-list">
-                                                {% if lecture.tuesday.materials %}
-                                                    <ul class="list-unstyled mb-0">
-                                                        {% for material in lecture.tuesday.materials %}
-                                                            <li class="small mb-1 d-flex justify-content-between align-items-center">
-                                                                <a href="{{ material.url }}" target="_blank">{{ material.name }}</a>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger delete-material-btn" 
-                                                                        data-week="{{ lecture.week }}" data-day="tuesday" data-index="{{ loop.index0 }}">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                {% endif %}
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-success mt-2 add-material-btn">
-                                                <i class="fas fa-plus"></i> Add Material
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Edit Mode (hidden by default) -->
-                                        <div class="lecture-edit" style="display: none;">
-                                            <div class="mb-2">
-                                                <input type="text" class="form-control form-control-sm edit-topic" 
-                                                       value="{{ lecture.tuesday.topic }}" placeholder="Lecture topic">
-                                            </div>
-                                            <div class="materials-edit">
-                                                {% if lecture.tuesday.materials %}
-                                                    {% for material in lecture.tuesday.materials %}
-                                                        <div class="row mb-1 material-edit-row">
-                                                            <div class="col-5">
-                                                                <input type="text" class="form-control form-control-sm material-name-input" 
-                                                                       value="{{ material.name }}" placeholder="Material name">
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <input type="text" class="form-control form-control-sm material-url-input" 
-                                                                       value="{{ material.url }}" placeholder="URL">
-                                                            </div>
-                                                            <div class="col-1">
-                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-material-edit">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary add-material-edit">
-                                                <i class="fas fa-plus"></i> Add Material
-                                            </button>
-                                            <div class="mt-2">
-                                                <button type="button" class="btn btn-sm btn-success save-lecture-btn">Save</button>
-                                                <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn">Cancel</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <div class="text-muted small">No materials yet.</div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                            {% if lecture.thursday %}
-                                <div class="col-md-6">
-                                    <div class="border p-3 rounded lecture-card" data-week="{{ lecture.week }}" data-day="thursday">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="text-success mb-0">Thursday</h6>
-                                            <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary edit-lecture-btn">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <form method="POST" action="{{ url_for('delete_lecture') }}" class="d-inline">
-                                                    <input type="hidden" name="week" value="{{ lecture.week }}">
-                                                    <input type="hidden" name="day" value="thursday">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
-                                                        <i class="fas fa-trash"></i>
+                                <button type="button" class="btn btn-sm btn-outline-success mt-2 add-material-btn">
+                                    <i class="fas fa-plus"></i> Add Material
+                                </button>
+                            </div>
+
+                            <!-- Edit Mode (hidden by default) -->
+                            <div class="lecture-edit" style="display: none;">
+                                <div class="mb-2">
+                                    <input type="text" class="form-control form-control-sm edit-topic"
+                                           value="{{ lecture.topic }}" placeholder="Lecture topic">
+                                </div>
+                                <div class="materials-edit">
+                                    {% if lecture.materials %}
+                                        {% for material in lecture.materials %}
+                                            <div class="row mb-1 material-edit-row">
+                                                <div class="col-5">
+                                                    <input type="text" class="form-control form-control-sm material-name-input"
+                                                           value="{{ material.name }}" placeholder="Material name">
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control form-control-sm material-url-input"
+                                                           value="{{ material.url }}" placeholder="URL">
+                                                </div>
+                                                <div class="col-1">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-material-edit">
+                                                        <i class="fas fa-times"></i>
                                                     </button>
-                                                </form>
+                                                </div>
                                             </div>
-                                        </div>
-                                        
-                                        <!-- Display Mode -->
-                                        <div class="lecture-display">
-                                            <p class="mb-2"><strong class="lecture-topic">{{ lecture.thursday.topic }}</strong></p>
-                                            <div class="materials-list">
-                                                {% if lecture.thursday.materials %}
-                                                    <ul class="list-unstyled mb-0">
-                                                        {% for material in lecture.thursday.materials %}
-                                                            <li class="small mb-1 d-flex justify-content-between align-items-center">
-                                                                <a href="{{ material.url }}" target="_blank">{{ material.name }}</a>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger delete-material-btn" 
-                                                                        data-week="{{ lecture.week }}" data-day="thursday" data-index="{{ loop.index0 }}">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                {% endif %}
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-success mt-2 add-material-btn">
-                                                <i class="fas fa-plus"></i> Add Material
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Edit Mode (hidden by default) -->
-                                        <div class="lecture-edit" style="display: none;">
-                                            <div class="mb-2">
-                                                <input type="text" class="form-control form-control-sm edit-topic" 
-                                                       value="{{ lecture.thursday.topic }}" placeholder="Lecture topic">
-                                            </div>
-                                            <div class="materials-edit">
-                                                {% if lecture.thursday.materials %}
-                                                    {% for material in lecture.thursday.materials %}
-                                                        <div class="row mb-1 material-edit-row">
-                                                            <div class="col-5">
-                                                                <input type="text" class="form-control form-control-sm material-name-input" 
-                                                                       value="{{ material.name }}" placeholder="Material name">
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <input type="text" class="form-control form-control-sm material-url-input" 
-                                                                       value="{{ material.url }}" placeholder="URL">
-                                                            </div>
-                                                            <div class="col-1">
-                                                                <button type="button" class="btn btn-sm btn-outline-danger remove-material-edit">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary add-material-edit">
-                                                <i class="fas fa-plus"></i> Add Material
-                                            </button>
-                                            <div class="mt-2">
-                                                <button type="button" class="btn btn-sm btn-success save-lecture-btn">Save</button>
-                                                <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn">Cancel</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+                                <button type="button" class="btn btn-sm btn-outline-secondary add-material-edit">
+                                    <i class="fas fa-plus"></i> Add Material
+                                </button>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-success save-lecture-btn">Save</button>
+                                    <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn">Cancel</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -473,8 +335,30 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(newRow);
     });
 
+    // Add holiday functionality
+    document.getElementById('add-holiday').addEventListener('click', function() {
+        const container = document.getElementById('holidays-container');
+        const newRow = document.createElement('div');
+        newRow.className = 'row mb-2 holiday-row';
+        newRow.innerHTML = `
+            <div class="col-md-6">
+                <input type="date" class="form-control" name="holidays[]">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-outline-danger remove-holiday">Remove</button>
+            </div>
+        `;
+        container.appendChild(newRow);
+    });
+
     // Remove class day functionality
     document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('move-lecture-btn') || e.target.closest('.move-lecture-btn')) {
+            e.preventDefault();
+            handleMoveLecture(e.target.closest('form'));
+            return;
+        }
+
         if (e.target.classList.contains('remove-class-day')) {
             const container = document.getElementById('class-days-container');
             if (container.children.length > 1) {
@@ -483,12 +367,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('You must have at least one class day.');
             }
         }
+
+        if (e.target.classList.contains('remove-holiday')) {
+            const container = document.getElementById('holidays-container');
+            if (container.children.length > 1) {
+                e.target.closest('.holiday-row').remove();
+            } else {
+                e.target.closest('.holiday-row').querySelector('input[type="date"]').value = '';
+            }
+        }
         
         // Handle inline editing
         if (e.target.classList.contains('edit-lecture-btn') || e.target.closest('.edit-lecture-btn')) {
-            const card = e.target.closest('.lecture-card');
-            card.querySelector('.lecture-display').style.display = 'none';
-            card.querySelector('.lecture-edit').style.display = 'block';
+            const wrapper = e.target.closest('.card');
+            const card = wrapper ? wrapper.querySelector('.lecture-card') : null;
+            if (card) {
+                card.querySelector('.lecture-display').style.display = 'none';
+                card.querySelector('.lecture-edit').style.display = 'block';
+            }
         }
         
         if (e.target.classList.contains('cancel-edit-btn')) {
@@ -552,84 +448,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Clean up lectures function
-function cleanupLectures() {
-    if (confirm('This will remove all lectures for days that are no longer in your class schedule. Are you sure?')) {
-        fetch('{{ url_for("cleanup_lectures") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+function handleMoveLecture(form) {
+    if (!form) return;
+    const index = form.querySelector('input[name="index"]').value;
+    const direction = form.querySelector('input[name="direction"]').value;
+    const currentCard = form.closest('.lecture-item');
+    if (!currentCard) return;
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            index: index,
+            direction: direction
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('Error cleaning up lectures');
-        });
-    }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Move failed');
+        }
+        const parent = currentCard.parentElement;
+        if (!parent) return;
+        const sibling = direction === 'up' ? currentCard.previousElementSibling : currentCard.nextElementSibling;
+        if (!sibling || !sibling.classList.contains('lecture-item')) return;
+
+        if (direction === 'up') {
+            parent.insertBefore(currentCard, sibling);
+        } else {
+            parent.insertBefore(sibling, currentCard);
+        }
+        refreshLectureIndexes();
+    })
+    .catch(() => {
+        alert('Error moving lecture');
+    });
 }
 
-// Fill missing days function
-function fillMissingDays() {
-    if (confirm('This will add placeholder lectures for any missing class days in existing weeks. Continue?')) {
-        fetch('{{ url_for("bulk_operations") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                'operation': 'fill_missing_days'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('Error filling missing days');
-        });
-    }
-}
+function refreshLectureIndexes() {
+    const lectureItems = document.querySelectorAll('.lecture-item');
+    lectureItems.forEach((item, idx) => {
+        item.dataset.lectureIndex = idx.toString();
 
-// Generate weeks function
-function generateWeeks() {
-    const maxWeek = prompt('Generate placeholder lectures up to which week? (default: 16)', '16');
-    if (maxWeek && parseInt(maxWeek) > 0) {
-        fetch('{{ url_for("bulk_operations") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                'operation': 'generate_weeks',
-                'max_week': parseInt(maxWeek)
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('Error generating weeks');
+        const title = item.querySelector('h6');
+        if (title) {
+            title.textContent = `Lecture ${idx + 1}`;
+        }
+
+        item.querySelectorAll('form.move-lecture-form input[name="index"]').forEach(input => {
+            input.value = idx.toString();
         });
-    }
+
+        const deleteForm = item.querySelector('form.delete-lecture-form input[name="index"]');
+        if (deleteForm) {
+            deleteForm.value = idx.toString();
+        }
+
+        const lectureCard = item.querySelector('.lecture-card');
+        if (lectureCard) {
+            lectureCard.dataset.index = idx.toString();
+        }
+
+        item.querySelectorAll('.delete-material-btn').forEach(btn => {
+            btn.dataset.lectureIndex = idx.toString();
+        });
+    });
+
+    lectureItems.forEach((item, idx) => {
+        const upButton = item.querySelector('form.move-lecture-form input[value="up"]')?.closest('button');
+        const downButton = item.querySelector('form.move-lecture-form input[value="down"]')?.closest('button');
+        if (upButton) {
+            upButton.disabled = idx === 0;
+        }
+        if (downButton) {
+            downButton.disabled = idx === lectureItems.length - 1;
+        }
+    });
 }
 
 // File upload function
@@ -733,8 +628,7 @@ function loadRecentFiles() {
 
 // Save lecture edit
 function saveLectureEdit(card) {
-    const week = card.dataset.week;
-    const day = card.dataset.day;
+    const lectureIndex = card.dataset.index;
     const topic = card.querySelector('.edit-topic').value;
     
     const materials = [];
@@ -750,26 +644,19 @@ function saveLectureEdit(card) {
         }
     });
     
-    console.log('Saving lecture:', { week: parseInt(week), day, topic, materials });
-    
     fetch('{{ url_for("edit_lecture") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            week: parseInt(week),
-            day: day,
+            index: parseInt(lectureIndex),
             topic: topic,
             materials: materials
         })
     })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('Response data:', data);
         if (data.success) {
             alert('Lecture saved successfully!');
             location.reload();
@@ -806,8 +693,7 @@ function addMaterialEditRow(editDiv) {
 
 // Show add material modal (simplified - direct prompt for now)
 function showAddMaterialModal(card) {
-    const week = card.dataset.week;
-    const day = card.dataset.day;
+    const lectureIndex = card.dataset.index;
     
     const name = prompt('Material name:');
     if (!name) return;
@@ -821,8 +707,7 @@ function showAddMaterialModal(card) {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-            week: week,
-            day: day,
+            lecture_index: lectureIndex,
             material_name: name,
             material_url: url
         })
@@ -842,8 +727,7 @@ function showAddMaterialModal(card) {
 // Delete material
 function deleteMaterial(button) {
     if (confirm('Delete this material?')) {
-        const week = button.dataset.week;
-        const day = button.dataset.day;
+        const lectureIndex = button.dataset.lectureIndex;
         const index = button.dataset.index;
         
         fetch('{{ url_for("delete_material") }}', {
@@ -852,8 +736,7 @@ function deleteMaterial(button) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                week: parseInt(week),
-                day: day,
+                lecture_index: parseInt(lectureIndex),
                 index: parseInt(index)
             })
         })

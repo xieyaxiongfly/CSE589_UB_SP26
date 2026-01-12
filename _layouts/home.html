@@ -3,79 +3,10 @@ layout: default
 ---
 
 <div class="home">
-
-
-    {{ content }}
-
-
-    <br>
-    <div class="people-section">
-        <h2>Instructor</h2>
-        {% for ins in site.data.people.instructors %}
-        <div class="instructor-card">
-            <div class="instructor-photo">
-                <img src="{{ins.profile_pic | prepend: site.baseurl }}" class="image--cover">
-            </div>
-            <div class="instructor-info">
-                <h3>
-                    {% if ins.webpage %}
-                    <a href="{{ ins.webpage }}">{{ins.name}}</a>
-                    {% else %}
-                    {{ins.name}}
-                    {% endif %}
-                </h3>
-                {% if ins.title %}
-                <p class="instructor-title">{{ins.title}}</p>
-                {% endif %}
-                {% if ins.email %}
-                <p><strong>Email:</strong> <a href="mailto:{{ins.email}}">{{ins.email}}</a></p>
-                {% endif %}
-                {% if ins.office %}
-                <p><strong>Office:</strong> {{ins.office}}</p>
-                {% endif %}
-                {% if ins.office_hours %}
-                <p><strong>Office Hours:</strong> {{ins.office_hours}}</p>
-                {% endif %}
-                {% if ins.bio %}
-                <p class="instructor-bio">{{ins.bio}}</p>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-
-        <h2>Teaching Assistants</h2>
-        {% if site.data.people.teaching_assistants and site.data.people.teaching_assistants.size > 0 %}
-            <div class="ta-section">
-                {% for ta in site.data.people.teaching_assistants %}
-                <div class="ta-card">
-                    <div class="ta-photo">
-                        <img src="{{ta.profile_pic | prepend: site.baseurl }}" class="image--cover">
-                    </div>
-                    <div class="ta-info">
-                        <h4>
-                            {% if ta.webpage %}
-                            <a href="{{ ta.webpage }}">{{ta.name}}</a>
-                            {% else %}
-                            {{ta.name}}
-                            {% endif %}
-                        </h4>
-                        {% if ta.email %}
-                        <p><strong>Email:</strong> <a href="mailto:{{ta.email}}">{{ta.email}}</a></p>
-                        {% endif %}
-                        {% if ta.office_hours %}
-                        <p><strong>Office Hours:</strong> {{ta.office_hours}}</p>
-                        {% endif %}
-                        {% if ta.bio %}
-                        <p class="ta-bio">{{ta.bio}}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="no-ta-message">
-                <p><em>Currently, no teaching assistants are assigned to this course. Students should contact the instructor directly for questions and support.</em></p>
-            </div>
-        {% endif %}
-    </div>
+    {% if site.data.home_modules and site.data.home_modules.modules and site.data.home_modules.modules.size > 0 %}
+        {% include home_modules.html %}
+    {% else %}
+        {{ content }}
+        {% include people_section.html %}
+    {% endif %}
 </div>

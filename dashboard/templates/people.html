@@ -48,6 +48,14 @@
                 <label for="profile_pic" class="form-label">Profile Picture Path</label>
                 <input type="text" class="form-control" id="profile_pic" name="profile_pic" placeholder="/_images/pp/profile.jpg">
             </div>
+            <div class="mt-2">
+                <label class="form-label">Upload Profile Picture</label>
+                <div class="input-group">
+                    <input type="file" class="form-control photo-input" accept=".jpg,.jpeg,.png,.gif">
+                    <button type="button" class="btn btn-outline-secondary upload-photo-btn" data-target="#profile_pic">Upload</button>
+                </div>
+                <div class="form-text">Uploads to /_images/pp/ and fills the path automatically.</div>
+            </div>
             <div class="mt-3">
                 <button type="submit" class="btn btn-primary">Add Instructor</button>
             </div>
@@ -92,6 +100,14 @@
                     <textarea class="form-control" id="ta_bio" name="bio" rows="2" placeholder="Brief bio..."></textarea>
                 </div>
             </div>
+            <div class="mt-2">
+                <label class="form-label">Upload Profile Picture</label>
+                <div class="input-group">
+                    <input type="file" class="form-control photo-input" accept=".jpg,.jpeg,.png,.gif">
+                    <button type="button" class="btn btn-outline-secondary upload-photo-btn" data-target="#ta_profile_pic">Upload</button>
+                </div>
+                <div class="form-text">Uploads to /_images/pp/ and fills the path automatically.</div>
+            </div>
             <div class="mt-3">
                 <button type="submit" class="btn btn-success">Add Teaching Assistant</button>
             </div>
@@ -110,10 +126,14 @@
             <div class="card-body">
                 {% if people.instructors %}
                     {% for instructor in people.instructors %}
+                        {% set profile_src = instructor.profile_pic %}
+                        {% if profile_src and profile_src[0] == '/' %}
+                            {% set profile_src = '/site' ~ profile_src %}
+                        {% endif %}
                         <div class="border rounded p-3 mb-3">
                             <div class="d-flex align-items-center">
                                 {% if instructor.profile_pic %}
-                                    <img src="{{ instructor.profile_pic }}" alt="{{ instructor.name }}" 
+                                    <img src="{{ profile_src }}" alt="{{ instructor.name }}" 
                                          class="rounded-circle me-3" width="60" height="60" 
                                          onerror="this.style.display='none'">
                                 {% endif %}
@@ -132,6 +152,65 @@
                             {% if instructor.webpage %}
                                 <p class="mb-0"><a href="{{ instructor.webpage }}" target="_blank">Personal Webpage</a></p>
                             {% endif %}
+
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-sm btn-outline-secondary edit-person-btn">Edit</button>
+                                <form method="POST" action="{{ url_for('delete_instructor') }}" class="d-inline">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this instructor?')">Delete</button>
+                                </form>
+                            </div>
+
+                            <div class="person-edit mt-3" style="display: none;">
+                                <form method="POST" action="{{ url_for('update_instructor') }}">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" name="name" value="{{ instructor.name }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Title</label>
+                                            <input type="text" class="form-control" name="title" value="{{ instructor.title }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="{{ instructor.email }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Office</label>
+                                            <input type="text" class="form-control" name="office" value="{{ instructor.office }}">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Office Hours</label>
+                                            <input type="text" class="form-control" name="office_hours" value="{{ instructor.office_hours }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Webpage</label>
+                                            <input type="url" class="form-control" name="webpage" value="{{ instructor.webpage }}">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-12">
+                                            <label class="form-label">Profile Picture Path</label>
+                                            <input type="text" class="form-control" name="profile_pic" value="{{ instructor.profile_pic }}">
+                                            <div class="input-group mt-2">
+                                                <input type="file" class="form-control photo-input" accept=".jpg,.jpeg,.png,.gif">
+                                                <button type="button" class="btn btn-outline-secondary upload-photo-btn">Upload</button>
+                                            </div>
+                                            <img class="rounded-circle mt-2 photo-preview" src="{{ profile_src }}" alt="{{ instructor.name }}" width="60" height="60" onerror="this.style.display='none'">
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                        <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -153,10 +232,14 @@
             <div class="card-body">
                 {% if people.teaching_assistants %}
                     {% for ta in people.teaching_assistants %}
+                        {% set profile_src = ta.profile_pic %}
+                        {% if profile_src and profile_src[0] == '/' %}
+                            {% set profile_src = '/site' ~ profile_src %}
+                        {% endif %}
                         <div class="border rounded p-3 mb-3">
                             <div class="d-flex align-items-center">
                                 {% if ta.profile_pic %}
-                                    <img src="{{ ta.profile_pic }}" alt="{{ ta.name }}" 
+                                    <img src="{{ profile_src }}" alt="{{ ta.name }}" 
                                          class="rounded-circle me-3" width="50" height="50" 
                                          onerror="this.style.display='none'">
                                 {% endif %}
@@ -174,6 +257,59 @@
                             {% if ta.webpage %}
                                 <p class="mb-0"><a href="{{ ta.webpage }}" target="_blank">Webpage</a></p>
                             {% endif %}
+
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-sm btn-outline-secondary edit-person-btn">Edit</button>
+                                <form method="POST" action="{{ url_for('delete_ta') }}" class="d-inline">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this TA?')">Delete</button>
+                                </form>
+                            </div>
+
+                            <div class="person-edit mt-3" style="display: none;">
+                                <form method="POST" action="{{ url_for('update_ta') }}">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" name="name" value="{{ ta.name }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="{{ ta.email }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Office Hours</label>
+                                            <input type="text" class="form-control" name="office_hours" value="{{ ta.office_hours }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Webpage</label>
+                                            <input type="url" class="form-control" name="webpage" value="{{ ta.webpage }}">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Profile Picture Path</label>
+                                            <input type="text" class="form-control" name="profile_pic" value="{{ ta.profile_pic }}">
+                                            <div class="input-group mt-2">
+                                                <input type="file" class="form-control photo-input" accept=".jpg,.jpeg,.png,.gif">
+                                                <button type="button" class="btn btn-outline-secondary upload-photo-btn">Upload</button>
+                                            </div>
+                                            <img class="rounded-circle mt-2 photo-preview" src="{{ profile_src }}" alt="{{ ta.name }}" width="50" height="50" onerror="this.style.display='none'">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Bio</label>
+                                            <textarea class="form-control" name="bio" rows="2">{{ ta.bio }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                                        <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -186,4 +322,75 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('edit-person-btn')) {
+        const card = e.target.closest('.border');
+        const editBlock = card.querySelector('.person-edit');
+        if (editBlock) {
+            editBlock.style.display = 'block';
+        }
+    }
+
+    if (e.target.classList.contains('cancel-edit-btn')) {
+        const card = e.target.closest('.border');
+        const editBlock = card.querySelector('.person-edit');
+        if (editBlock) {
+            editBlock.style.display = 'none';
+        }
+    }
+
+    if (e.target.classList.contains('upload-photo-btn')) {
+        const group = e.target.closest('.input-group');
+        const fileInput = group.querySelector('.photo-input');
+        if (!fileInput || !fileInput.files.length) {
+            alert('Please select a photo to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        fetch('{{ url_for("upload_photo") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('Upload failed: ' + data.message);
+                return;
+            }
+
+            let targetInput = null;
+            const targetSelector = e.target.getAttribute('data-target');
+            if (targetSelector) {
+                targetInput = document.querySelector(targetSelector);
+            } else {
+                const form = e.target.closest('form');
+                if (form) {
+                    targetInput = form.querySelector('input[name="profile_pic"]');
+                }
+            }
+
+            if (targetInput) {
+                targetInput.value = data.file_path;
+            }
+
+            const form = e.target.closest('form');
+            const preview = form ? form.querySelector('.photo-preview') : null;
+            if (preview) {
+                preview.src = '/site' + data.file_path;
+                preview.style.display = 'inline-block';
+            }
+        })
+        .catch(() => {
+            alert('Upload failed.');
+        });
+    }
+});
+</script>
 {% endblock %}

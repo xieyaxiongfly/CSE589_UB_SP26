@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 import yaml
 import os
 from datetime import datetime
@@ -14,7 +14,10 @@ SITE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(SITE_ROOT, '_data')
 CONFIG_FILE = os.path.join(SITE_ROOT, '_config.yml')
 UPLOAD_DIR = os.path.join(SITE_ROOT, 'static_files', 'uploads')
+HOME_MODULES_FILE = os.path.join(DATA_DIR, 'home_modules.yml')
 ALLOWED_EXTENSIONS = {'pdf', 'ppt', 'pptx', 'doc', 'docx', 'txt', 'jpg', 'png', 'gif'}
+PHOTO_UPLOAD_DIR = os.path.join(SITE_ROOT, '_images', 'pp')
+ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
 
 # Simple authentication (replace with proper auth in production)
 ADMIN_PASSWORD = "admin123"  # Change this!
@@ -23,9 +26,30 @@ def load_yaml_file(filename):
     filepath = os.path.join(DATA_DIR, filename)
     try:
         with open(filepath, 'r', encoding='utf-8') as file:
-            return yaml.safe_load(file)
+            return yaml.safe_load(file) or {}
     except FileNotFoundError:
         return {}
+
+def build_lecture_sequence(schedule_data):
+    sequence = schedule_data.get('lecture_sequence')
+    if sequence:
+        return sequence
+
+    class_days = schedule_data.get('course_schedule', {}).get('class_days', [])
+    day_order = [day.get('day') for day in class_days if day.get('day')]
+    if not day_order:
+        day_order = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+    sequence = []
+    for lecture_week in schedule_data.get('lectures', []):
+        for day in day_order:
+            if day in lecture_week and lecture_week[day]:
+                sequence.append({
+                    'topic': lecture_week[day].get('topic', 'TBD'),
+                    'materials': lecture_week[day].get('materials', [])
+                })
+
+    return sequence
 
 def save_yaml_file(filename, data):
     filepath = os.path.join(DATA_DIR, filename)
@@ -38,6 +62,16 @@ def load_config():
             return yaml.safe_load(file)
     except FileNotFoundError:
         return {}
+
+def load_home_modules():
+    if not os.path.exists(HOME_MODULES_FILE):
+        return {'modules': []}
+    with open(HOME_MODULES_FILE, 'r', encoding='utf-8') as file:
+        return yaml.safe_load(file) or {'modules': []}
+
+def save_home_modules(data):
+    with open(HOME_MODULES_FILE, 'w', encoding='utf-8') as file:
+        yaml.dump(data, file, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
 def save_config(data):
     with open(CONFIG_FILE, 'w', encoding='utf-8') as file:
@@ -54,6 +88,10 @@ def require_auth(f):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_image_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
 @app.route('/')
 @require_auth
@@ -87,7 +125,12 @@ def schedule():
     additional_events_data = load_yaml_file('additional_events.yml')
     
     # Merge the data for the template
+    if not schedule_data.get('lecture_sequence') and schedule_data.get('lectures'):
+        schedule_data['lecture_sequence'] = build_lecture_sequence(schedule_data)
+        save_yaml_file('course_schedule.yml', schedule_data)
+
     merged_data = schedule_data.copy()
+    merged_data['lecture_sequence'] = build_lecture_sequence(schedule_data)
     merged_data['additional_events'] = additional_events_data.get('additional_events', [])
     
     return render_template('schedule.html', schedule=merged_data)
@@ -95,59 +138,42 @@ def schedule():
 @app.route('/schedule/add_lecture', methods=['POST'])
 @require_auth
 def add_lecture():
-    week = int(request.form['week'])
-    day = request.form['day']
     topic = request.form['topic']
     
     schedule_data = load_yaml_file('course_schedule.yml')
-    
-    if 'lectures' not in schedule_data:
-        schedule_data['lectures'] = []
-    
-    # Find or create week entry
-    week_entry = None
-    for lecture in schedule_data['lectures']:
-        if lecture.get('week') == week:
-            week_entry = lecture
-            break
-    
-    if week_entry is None:
-        week_entry = {'week': week}
-        schedule_data['lectures'].append(week_entry)
-    
-    # Add lecture for the day
-    week_entry[day] = {
+
+    sequence = build_lecture_sequence(schedule_data)
+    sequence.append({
         'topic': topic,
         'materials': []
-    }
-    
+    })
+    schedule_data['lecture_sequence'] = sequence
+
     save_yaml_file('course_schedule.yml', schedule_data)
-    flash(f'Added lecture for Week {week}, {day.title()}!', 'success')
+    flash('Added lecture to the sequence!', 'success')
     return redirect(url_for('schedule'))
 
 @app.route('/schedule/add_material', methods=['POST'])
 @require_auth
 def add_material():
-    week = int(request.form['week'])
-    day = request.form['day']
+    lecture_index = int(request.form['lecture_index'])
     material_name = request.form['material_name']
     material_url = request.form['material_url']
     
     schedule_data = load_yaml_file('course_schedule.yml')
-    
-    # Find the lecture
-    for lecture in schedule_data.get('lectures', []):
-        if lecture.get('week') == week and day in lecture:
-            if 'materials' not in lecture[day]:
-                lecture[day]['materials'] = []
-            lecture[day]['materials'].append({
-                'name': material_name,
-                'url': material_url
-            })
-            break
-    
+
+    sequence = build_lecture_sequence(schedule_data)
+    if 0 <= lecture_index < len(sequence):
+        if 'materials' not in sequence[lecture_index]:
+            sequence[lecture_index]['materials'] = []
+        sequence[lecture_index]['materials'].append({
+            'name': material_name,
+            'url': material_url
+        })
+        schedule_data['lecture_sequence'] = sequence
+
     save_yaml_file('course_schedule.yml', schedule_data)
-    flash(f'Added material to Week {week}, {day.title()}!', 'success')
+    flash('Added material to lecture!', 'success')
     return redirect(url_for('schedule'))
 
 @app.route('/people')
@@ -155,6 +181,94 @@ def add_material():
 def people():
     people_data = load_yaml_file('people.yml')
     return render_template('people.html', people=people_data)
+
+@app.route('/home')
+@require_auth
+def home():
+    modules_data = load_home_modules()
+    return render_template('home.html', modules=modules_data.get('modules', []))
+
+@app.route('/home/add_module', methods=['POST'])
+@require_auth
+def add_home_module():
+    module_type = request.form['module_type']
+    title = request.form.get('title', '').strip()
+    body = request.form.get('body', '').strip()
+
+    modules_data = load_home_modules()
+    modules = modules_data.get('modules', [])
+    modules.append({
+        'type': module_type,
+        'title': title,
+        'body': body
+    })
+    modules_data['modules'] = modules
+    save_home_modules(modules_data)
+    flash('Home module added successfully!', 'success')
+    return redirect(url_for('home'))
+
+@app.route('/home/update_module', methods=['POST'])
+@require_auth
+def update_home_module():
+    index = int(request.form['index'])
+    module_type = request.form['module_type']
+    title = request.form.get('title', '').strip()
+    body = request.form.get('body', '').strip()
+
+    modules_data = load_home_modules()
+    modules = modules_data.get('modules', [])
+
+    if 0 <= index < len(modules):
+        modules[index] = {
+            'type': module_type,
+            'title': title,
+            'body': body
+        }
+        modules_data['modules'] = modules
+        save_home_modules(modules_data)
+        flash('Home module updated successfully!', 'success')
+    else:
+        flash('Module not found.', 'error')
+
+    return redirect(url_for('home'))
+
+@app.route('/home/delete_module', methods=['POST'])
+@require_auth
+def delete_home_module():
+    index = int(request.form['index'])
+    modules_data = load_home_modules()
+    modules = modules_data.get('modules', [])
+
+    if 0 <= index < len(modules):
+        modules.pop(index)
+        modules_data['modules'] = modules
+        save_home_modules(modules_data)
+        flash('Home module removed successfully!', 'success')
+    else:
+        flash('Module not found.', 'error')
+
+    return redirect(url_for('home'))
+
+@app.route('/home/move_module', methods=['POST'])
+@require_auth
+def move_home_module():
+    index = int(request.form['index'])
+    direction = request.form.get('direction')
+    modules_data = load_home_modules()
+    modules = modules_data.get('modules', [])
+
+    if not (0 <= index < len(modules)):
+        flash('Module not found.', 'error')
+        return redirect(url_for('home'))
+
+    if direction == 'up' and index > 0:
+        modules[index - 1], modules[index] = modules[index], modules[index - 1]
+    elif direction == 'down' and index < len(modules) - 1:
+        modules[index + 1], modules[index] = modules[index], modules[index + 1]
+
+    modules_data['modules'] = modules
+    save_home_modules(modules_data)
+    return redirect(url_for('home'))
 
 @app.route('/people/add_instructor', methods=['POST'])
 @require_auth
@@ -178,6 +292,48 @@ def add_instructor():
     flash('Instructor added successfully!', 'success')
     return redirect(url_for('people'))
 
+@app.route('/people/update_instructor', methods=['POST'])
+@require_auth
+def update_instructor():
+    index = int(request.form['index'])
+    people_data = load_yaml_file('people.yml')
+    instructors = people_data.get('instructors', [])
+
+    if 0 <= index < len(instructors):
+        instructors[index] = {
+            'name': request.form['name'],
+            'title': request.form['title'],
+            'email': request.form['email'],
+            'office': request.form.get('office', ''),
+            'office_hours': request.form.get('office_hours', ''),
+            'webpage': request.form.get('webpage', ''),
+            'profile_pic': request.form.get('profile_pic', '')
+        }
+        people_data['instructors'] = instructors
+        save_yaml_file('people.yml', people_data)
+        flash('Instructor updated successfully!', 'success')
+    else:
+        flash('Instructor not found.', 'error')
+
+    return redirect(url_for('people'))
+
+@app.route('/people/delete_instructor', methods=['POST'])
+@require_auth
+def delete_instructor():
+    index = int(request.form['index'])
+    people_data = load_yaml_file('people.yml')
+    instructors = people_data.get('instructors', [])
+
+    if 0 <= index < len(instructors):
+        instructors.pop(index)
+        people_data['instructors'] = instructors
+        save_yaml_file('people.yml', people_data)
+        flash('Instructor removed successfully!', 'success')
+    else:
+        flash('Instructor not found.', 'error')
+
+    return redirect(url_for('people'))
+
 @app.route('/people/add_ta', methods=['POST'])
 @require_auth
 def add_ta():
@@ -197,6 +353,80 @@ def add_ta():
     people_data['teaching_assistants'].append(ta_data)
     save_yaml_file('people.yml', people_data)
     flash('Teaching Assistant added successfully!', 'success')
+    return redirect(url_for('people'))
+
+@app.route('/people/upload_photo', methods=['POST'])
+@require_auth
+def upload_photo():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file selected'})
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No file selected'})
+
+    if file and allowed_image_file(file.filename):
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+        filename = timestamp + filename
+
+        os.makedirs(PHOTO_UPLOAD_DIR, exist_ok=True)
+        file_path = os.path.join(PHOTO_UPLOAD_DIR, filename)
+        file.save(file_path)
+
+        relative_path = f'/_images/pp/{filename}'
+        return jsonify({
+            'success': True,
+            'message': 'Photo uploaded successfully',
+            'file_path': relative_path
+        })
+
+    return jsonify({'success': False, 'message': 'Invalid file type'})
+
+@app.route('/site/<path:filename>')
+@require_auth
+def serve_site_file(filename):
+    return send_from_directory(SITE_ROOT, filename)
+
+@app.route('/people/update_ta', methods=['POST'])
+@require_auth
+def update_ta():
+    index = int(request.form['index'])
+    people_data = load_yaml_file('people.yml')
+    tas = people_data.get('teaching_assistants', [])
+
+    if 0 <= index < len(tas):
+        tas[index] = {
+            'name': request.form['name'],
+            'email': request.form['email'],
+            'office_hours': request.form.get('office_hours', ''),
+            'profile_pic': request.form.get('profile_pic', ''),
+            'webpage': request.form.get('webpage', ''),
+            'bio': request.form.get('bio', '')
+        }
+        people_data['teaching_assistants'] = tas
+        save_yaml_file('people.yml', people_data)
+        flash('Teaching Assistant updated successfully!', 'success')
+    else:
+        flash('Teaching Assistant not found.', 'error')
+
+    return redirect(url_for('people'))
+
+@app.route('/people/delete_ta', methods=['POST'])
+@require_auth
+def delete_ta():
+    index = int(request.form['index'])
+    people_data = load_yaml_file('people.yml')
+    tas = people_data.get('teaching_assistants', [])
+
+    if 0 <= index < len(tas):
+        tas.pop(index)
+        people_data['teaching_assistants'] = tas
+        save_yaml_file('people.yml', people_data)
+        flash('Teaching Assistant removed successfully!', 'success')
+    else:
+        flash('Teaching Assistant not found.', 'error')
+
     return redirect(url_for('people'))
 
 @app.route('/config')
@@ -349,10 +579,11 @@ def update_schedule_settings():
                 messages.append(f'Added placeholder lectures for new class days in {len(existing_weeks)} existing weeks')
     
     # Update holidays
-    holidays_text = request.form['holidays'].strip()
-    holidays = []
-    if holidays_text:
-        holidays = [line.strip() for line in holidays_text.split('\n') if line.strip()]
+    holidays = [date.strip() for date in request.form.getlist('holidays[]') if date.strip()]
+    if not holidays:
+        holidays_text = request.form.get('holidays', '').strip()
+        if holidays_text:
+            holidays = [line.strip() for line in holidays_text.split('\n') if line.strip()]
     
     schedule_data['course_schedule']['holidays'] = holidays
     
@@ -480,21 +711,39 @@ def bulk_operations():
 @app.route('/schedule/delete_lecture', methods=['POST'])
 @require_auth
 def delete_lecture():
-    week = int(request.form['week'])
-    day = request.form['day']
-    
+    lecture_index = int(request.form['index'])
     schedule_data = load_yaml_file('course_schedule.yml')
-    
-    for lecture in schedule_data.get('lectures', []):
-        if lecture.get('week') == week and day in lecture:
-            del lecture[day]
-            # Remove week entry if it's empty
-            if len(lecture) == 1:  # Only 'week' key remains
-                schedule_data['lectures'].remove(lecture)
-            break
-    
+
+    sequence = build_lecture_sequence(schedule_data)
+    if 0 <= lecture_index < len(sequence):
+        sequence.pop(lecture_index)
+        schedule_data['lecture_sequence'] = sequence
+        save_yaml_file('course_schedule.yml', schedule_data)
+        flash('Lecture removed from sequence.', 'success')
+    else:
+        flash('Lecture not found.', 'error')
+    return redirect(url_for('schedule'))
+
+@app.route('/move_lecture', methods=['POST'])
+@require_auth
+def move_lecture():
+    lecture_index = int(request.form['index'])
+    direction = request.form.get('direction')
+
+    schedule_data = load_yaml_file('course_schedule.yml')
+    sequence = build_lecture_sequence(schedule_data)
+
+    if not (0 <= lecture_index < len(sequence)):
+        flash('Lecture not found.', 'error')
+        return redirect(url_for('schedule'))
+
+    if direction == 'up' and lecture_index > 0:
+        sequence[lecture_index - 1], sequence[lecture_index] = sequence[lecture_index], sequence[lecture_index - 1]
+    elif direction == 'down' and lecture_index < len(sequence) - 1:
+        sequence[lecture_index + 1], sequence[lecture_index] = sequence[lecture_index], sequence[lecture_index + 1]
+
+    schedule_data['lecture_sequence'] = sequence
     save_yaml_file('course_schedule.yml', schedule_data)
-    flash(f'Deleted lecture for Week {week}, {day.title()}!', 'success')
     return redirect(url_for('schedule'))
 
 @app.route('/upload_file', methods=['POST'])
@@ -551,41 +800,22 @@ def get_uploaded_files():
 @require_auth
 def edit_lecture():
     data = request.get_json()
-    week = data.get('week')
-    day = data.get('day')
+    lecture_index = data.get('index')
     topic = data.get('topic')
     materials = data.get('materials', [])
     
     schedule_data = load_yaml_file('course_schedule.yml')
-    
-    # Find the lecture
-    for lecture in schedule_data.get('lectures', []):
-        if lecture.get('week') == week:
-            if day in lecture:
-                lecture[day]['topic'] = topic
-                lecture[day]['materials'] = materials
-                break
-            else:
-                # Add new day to existing week
-                lecture[day] = {
-                    'topic': topic,
-                    'materials': materials
-                }
-                break
-    else:
-        # Week doesn't exist, create it
-        new_lecture = {
-            'week': week,
-            day: {
-                'topic': topic,
-                'materials': materials
-            }
-        }
-        if 'lectures' not in schedule_data:
-            schedule_data['lectures'] = []
-        schedule_data['lectures'].append(new_lecture)
-        schedule_data['lectures'].sort(key=lambda x: x['week'])
-    
+
+    sequence = build_lecture_sequence(schedule_data)
+    if lecture_index is None or not (0 <= lecture_index < len(sequence)):
+        return jsonify({'success': False, 'message': 'Lecture not found'})
+
+    sequence[lecture_index] = {
+        'topic': topic,
+        'materials': materials
+    }
+    schedule_data['lecture_sequence'] = sequence
+
     save_yaml_file('course_schedule.yml', schedule_data)
     return jsonify({'success': True, 'message': 'Lecture updated successfully'})
 
@@ -593,22 +823,23 @@ def edit_lecture():
 @require_auth
 def delete_material():
     data = request.get_json()
-    week = data.get('week')
-    day = data.get('day')
+    lecture_index = data.get('lecture_index')
     index = data.get('index')
     
     schedule_data = load_yaml_file('course_schedule.yml')
-    
-    # Find the lecture and remove material
-    for lecture in schedule_data.get('lectures', []):
-        if lecture.get('week') == week and day in lecture:
-            materials = lecture[day].get('materials', [])
-            if 0 <= index < len(materials):
-                materials.pop(index)
-                break
-    
-    save_yaml_file('course_schedule.yml', schedule_data)
-    return jsonify({'success': True, 'message': 'Material deleted successfully'})
+
+    sequence = build_lecture_sequence(schedule_data)
+    if lecture_index is None or not (0 <= lecture_index < len(sequence)):
+        return jsonify({'success': False, 'message': 'Lecture not found'})
+
+    materials = sequence[lecture_index].get('materials', [])
+    if 0 <= index < len(materials):
+        materials.pop(index)
+        schedule_data['lecture_sequence'] = sequence
+        save_yaml_file('course_schedule.yml', schedule_data)
+        return jsonify({'success': True, 'message': 'Material deleted successfully'})
+
+    return jsonify({'success': False, 'message': 'Material not found'})
 
 @app.route('/delete_file', methods=['POST'])
 @require_auth
@@ -751,4 +982,5 @@ if __name__ == '__main__':
     # Create data directory if it doesn't exist
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(UPLOAD_DIR, exist_ok=True)
+    os.makedirs(PHOTO_UPLOAD_DIR, exist_ok=True)
     app.run(debug=True, host='0.0.0.0', port=8080)

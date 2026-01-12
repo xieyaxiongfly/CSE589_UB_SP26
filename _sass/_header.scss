@@ -8,7 +8,7 @@
     background: #ffffff;
     // Positioning context for the mobile navigation icon
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .site-header .wrapper {
@@ -184,7 +184,7 @@ z-index:999;
 .site-nav {
     float: left;
     line-height: 40px;
-    margin-left: 20px;
+    margin-left: 0;
 
 
     .menu-icon {
@@ -283,5 +283,3 @@ z-index:999;
     color: $header-text-color;
     opacity: 0.9;
 }
-
-

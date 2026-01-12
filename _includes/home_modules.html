@@ -1,0 +1,19 @@
+{% assign modules = site.data.home_modules.modules %}
+
+{% if modules and modules.size > 0 %}
+    {% for module in modules %}
+        {% if module.type == "markdown" %}
+            {% if module.title %}
+                <h2>{{ module.title }}</h2>
+            {% endif %}
+            <div class="home-module-content">
+                {{ module.body | markdownify }}
+            </div>
+        {% elsif module.type == "people" %}
+            {% if module.title %}
+                <h2>{{ module.title }}</h2>
+            {% endif %}
+            {% include people_section.html %}
+        {% endif %}
+    {% endfor %}
+{% endif %}

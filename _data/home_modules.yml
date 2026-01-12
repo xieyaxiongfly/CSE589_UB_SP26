@@ -1,0 +1,135 @@
+modules:
+- type: markdown
+  title: Course Information
+  body: "**Lecture Time:** Tuesday & Thursday, 5:00 PM - 6:20 PM  \r\n**Location:**\
+    \ Knox Hall, 110, North Campus  \r\n**Semester:** Spring 2026"
+- type: markdown
+  title: Course Description
+  body: "This course introduces the principles and practice of computer networking\
+    \ through a two-axis progression: from small, point-to-point communication to\
+    \ shared-medium LANs, multi-hop internetworking, and Internet-scale systems; and\
+    \ from the application layer down to the physical layer. Students build intuition\
+    \ from real network behavior, learn core protocol mechanisms and design trade-offs,\
+    \ and gain hands-on experience via programming and measurement-driven labs/projects\
+    \ using tools such as sockets, Wireshark/tcpdump, Mininet, and containerized environments\
+    \ (Python recommended; C as an advanced option).\r\n\r\nThe objective of the course\
+    \ is to enable students to develop a rigorous understanding of how networked systems\
+    \ are designed, implemented, and evaluated, and to acquire practical skills to\
+    \ build and diagnose networked applications and protocols across layers and at\
+    \ scale.\r\n\r\nAt the end of this course, each student should be able to:\r\n\
+    - Explain the Internet’s layered architecture and key design principles (e.g.,\
+    \ encapsulation, end-to-end reasoning) and apply them to analyze new systems.\r\
+    \n- Implement client–server applications using socket programming, and reason\
+    \ about application-layer protocols such as HTTP/HTTPS and DNS.\r\n- Describe\
+    \ and evaluate reliable data transfer mechanisms (ACKs, timeouts, retransmissions),\
+    \ and explain TCP’s reliability, flow control, and congestion control at a conceptual\
+    \ and algorithmic level.\r\n- Perform IP addressing and subnetting, and explain\
+    \ packet forwarding, routing fundamentals, NAT, and ICMP in practical scenarios.\r\
+    \n- Explain link-layer services and mechanisms including framing, error detection,\
+    \ Ethernet switching, ARP, and Wi-Fi medium access (CSMA/CA) at an operational\
+    \ level.\r\n- Measure and interpret network performance (throughput, latency,\
+    \ loss, jitter), and use standard tools (e.g., ping, traceroute, iperf, Wireshark)\
+    \ to diagnose bottlenecks and failures.\r\n- Describe foundational security mechanisms\
+    \ (TLS, certificates, authentication) and recognize common network threats (e.g.,\
+    \ spoofing, MITM, DoS) and basic mitigations."
+- type: markdown
+  title: Grading
+  body: "- **Midterm:** 20%\r\n- **Midterm:** 20%\r\n- **Course Project:** 50%\r\n\
+    - **Homework:** 10%"
+- type: markdown
+  title: Communication
+  body: "Course communication will be conducted through Piazza, please join via this\
+    \ [**link**](https://piazza.com/buffalo/spring2026/cse589).\r\nFor **Access Code**:\
+    \ You should find it under the Announcements tab in **UBLearns Brightspace**."
+- type: people
+  title: Instructor & Teaching Assistants
+- type: markdown
+  title: Course Policies
+  body: "**Late policy:** All assignments are due on the day and time posted.\r\n\
+    - You can submit an assignment up to 7 days late with a fixed daily penalty of\
+    \ 10% out of total points. Latest submission (7 days late) will receive at most\
+    \ 30% of max points even if it’s all correct; 0 points if more than 7 days late.\r\
+    \n- The workload is heavy, so start the assignments, especially the project assignments,\
+    \ early! Excuses that you did not have enough time for an assignment will not\
+    \ be considered. Extraordinary circumstances will be considered at the discretion\
+    \ of the instructor (not the TAs!), contact the instructor via E-mail if you think\
+    \ these apply to you.\r\n- Teams: Teams are allowed for the two programming project\
+    \ assignments only and will be grouped at the beginning of the semester and are\
+    \ NOT subject to change during the whole semester. If you do not satisfy with\
+    \ your team in the middle of the semester, send an email to the instructor and\
+    \ explain your situation. We may regroup your team and/or ask for an in-team peer\
+    \ review base on the situation\r\n- Exams: If you miss an exam because of sickness\
+    \ or similar reasons, visit a physician and obtain a note detailing the period\
+    \ during which you were medically incapable of taking the exam. Notify the instructor\
+    \ immediately via e-mail or telephone (voice mail) if you are going to miss an\
+    \ exam, before the exam takes place unless medically impossible. See the instructor\
+    \ as soon as you return to class. If you miss an exam without a valid excuse,\
+    \ you will receive a zero grade for that exam. No make-up exam will be available\
+    \ without a valid excuse.\r\n- No extra work in the next semester will be given\
+    \ to improve your grade.\r\n\r\n**Regrading policy:**\r\n- Homework grades will\
+    \ be posted on UBLearns. You can look up graded homework/labs from the UBLearns.\
+    \ Questions about homework/report grades should be sent on piazza via private\
+    \ post within one week after the grade is posted on UBLearns. If you are not satisfied\
+    \ with the TA’s response, you should contact the instructor no later than 3 days\
+    \ after TA’s response.\r\n- Programming assignments (PA): Grades for the programming\
+    \ assignments will be posted on UBLearns. If you have questions about your grade,\
+    \ you should contact the TAs on piazza via private post or during their office\
+    \ hours within one week after the grade is posted on UBLearns. If you are not\
+    \ satisfied with the TA’s response, you should contact the instructor no later\
+    \ than 3 days after TA’s response.\r\n- Exams: Exams will NOT be returned. Exam\
+    \ grades will be posted on UBLearns, and you will be able to see your exam during\
+    \ the instructor’s office hours. If you have questions about your grade, you should\
+    \ contact the instructor by email or during office hours within the time period\
+    \ specified after the grade is posted on UBLearns.\r\n- No regrade requests will\
+    \ be considered after the deadlines mentioned above."
+- type: markdown
+  title: Academic Integrity
+  body: "- **No tolerance on cheating!**\r\n   - All academic integrity violation\
+    \ cases will be reported to the department, school, and university, and recorded.\r\
+    \n   - Fail the course on any homework assignment/lab, project, or exam even for\
+    \ fir st offense.\r\n   - Team members are equally responsible.\r\n   - Consult\
+    \ the Department and University Statements on Academic Integrity.\r\n   - Group\
+    \ study/discussion is encouraged, but the submission must be your own work.  \r\
+    \n- *Homeworks:** Homework reports must be written up individually. Use of reference\
+    \ materials in the library or online is allowed, providedthat the homework explicitly\
+    \ cites the references used. Note that copying the solutions from online sources\
+    \ or the previous semester is still considered cheating even if you cite the sources.\r\
+    \n- **Programming assignments:** Programming assignments can be done individually\
+    \ or in teams of up to 2 students. One submission per team, one grade per team.\
+    \ Engaging in discussions concerning concepts is permitted; however, sharing of\
+    \ source code is strictly prohibited. In instances where external resources have\
+    \ been consulted, such as online materials, the provided demonstration code, or\
+    \ Beej’s Socket Programming Guide, students must clearly annotate the relevant\
+    \ sections of their work with commentary, demarcating the beginning and termination\
+    \ of the referenced material. Importantly, under NO circumstances may students\
+    \ rely on the work of their peers, including but not limited to GitHub repositories\
+    \ or code submissions from previous academic terms. We reserve the right to make\
+    \ the ultimate determination regarding breaches of academic integrity policies.\r\
+    \n- Students who do share their work with others are as responsible for academic\
+    \ dishonesty as the student receiving the material. Students are not to show work\
+    \ to other students, in class or outside the class. Students are responsible for\
+    \ the security of their work and should ensure that printed copies are not left\
+    \ in accessible places, and that file/directory permissions are set to be unreadable\
+    \ to others.\r\n- Excuses such as “I was not sure” or “I did not know” will not\
+    \ be accepted. If you are not sure, ask the TAs and /or the instructor.\r\n- Any\
+    \ student may withdraw their submission (homework, lab, projects) any time, no\
+    \ questions asked, BEFORE any AI violation is discovered."
+- type: markdown
+  title: AI Tools
+  body: "No use of AI Tools for any submissions\r\n- AI Tools like ChatGPT, Google\
+    \ Geimin, etc. are not allowed.\r\n- They can be used to understand the concepts\
+    \ and for clarifications.\r\n- Use of AI Tools for the submissions in any class\
+    \ work (Homeworks/Wireshark Labs/Programming Assignments) will not be acceptable."
+- type: markdown
+  title: Medical Emergencies
+  body: Accommodation for medical emergencies will be made on a case-by-case basis.
+    Requests for extensions based on medical emergencies must be accompanied by documentation
+    of the emergency from http://www.buffalo.edu/studentlife/who-we-are/departments/health.html.
+- type: markdown
+  title: Accessibility Resources
+  body: 'If you have a diagnosed disability (physical, learning, or psychological)
+    that will make it difficult for you to carry out the course work as outlined,
+    or that requires accommodations such as recruiting note-takers, readers, or extended
+    time on exams or assignments, please advise the instructor during the first two
+    weeks of the course so that we may review possible arrangements for reasonable
+    accommodations. In addition, if you have not yet done so, contact: https://www.buffalo.edu/studentlife/who-we-are/departments/accessibility.html.'

@@ -6,29 +6,23 @@ course_schedule:
     time: '17:00'
   - day: thursday
     time: '17:00'
-  holidays: []
+  holidays:
+  - '2026-03-17'
+  - '2026-03-19'
 lectures:
 - week: 1
   tuesday:
     topic: Introduction to Mobile Sensing
     materials:
-    - name: Lecture Slides
-      url: /static_files/lectures/01_intro_slides.pdf
     - name: Reading
       url: https://example.com/paper1.pdf
   thursday:
-    topic: Mobile Networks Overview
-    materials:
-    - name: Lecture Slides
-      url: /static_files/lectures/02_networks_slides.pdf
+    topic: Introduction of Computer Networks
+    materials: []
 - week: 2
   tuesday:
-    topic: Wireless Communication Fundamentals
-    materials:
-    - name: Lecture Slides
-      url: /static_files/lectures/03_wireless_slides.pdf
-    - name: Research Paper
-      url: https://example.com/wireless_paper.pdf
+    topic: Link Layer between Two Device
+    materials: []
   thursday:
     topic: Sensor Technologies
     materials:
@@ -37,9 +31,7 @@ lectures:
 - week: 3
   tuesday:
     topic: IoT Systems Architecture
-    materials:
-    - name: Lecture Slides
-      url: /static_files/lectures/05_iot_slides.pdf
+    materials: []
 - week: 4
   tuesday:
     topic: IoT Systems Architecture
@@ -52,3 +44,139 @@ lectures:
     materials:
     - name: Lecture Slides
       url: /static_files/lectures/05_iot_slides.pdf
+- week: 6
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 7
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 8
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 9
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 10
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 11
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 12
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 13
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 14
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: []
+- week: 15
+  tuesday:
+    topic: TBD
+    materials: []
+  thursday:
+    topic: TBD
+    materials: &id001 []
+- week: 16
+  tuesday:
+    topic: TBD
+    materials: &id002 []
+  thursday:
+    topic: TBD
+    materials: &id003 []
+lecture_sequence:
+- topic: Course Introduction
+  materials: []
+- topic: Introduction of Networks (part 1)
+  materials: []
+- topic: Introduction of Networks (part 2)
+  materials: []
+- topic: Introduction of Networks (part 3)
+  materials: []
+- topic: Application Layer (part 1)
+  materials: []
+- topic: Application Layer (part 2)
+  materials: []
+- topic: Application Layer (part 3)
+  materials: []
+- topic: Application Layer (part 4)
+  materials: []
+- topic: Transport Layer (part 1)
+  materials: []
+- topic: Transport Layer (part 2)
+  materials: []
+- topic: Transport Layer (part 3)
+  materials: []
+- topic: Transport Layer (part 4)
+  materials: []
+- topic: Mid-Term Exam Review
+  materials: []
+- topic: Mid-Term Exam
+  materials: []
+- topic: Transport Layer (part 5)
+  materials: []
+- topic: 'Network Layer: Data Plane (part 1)'
+  materials: []
+- topic: 'Network Layer: Data Plane (part 2)'
+  materials: []
+- topic: 'Network Layer: Data Plane (part 3)'
+  materials: []
+- topic: 'Network Layer: Data Plane (part 4)'
+  materials: []
+- topic: 'Network Layer: Control Plane (part 1)'
+  materials: []
+- topic: 'Network Layer: Control Plane (part 2)'
+  materials: []
+- topic: 'Network Layer: Control Plane (part 3)'
+  materials: []
+- topic: Link Layer and LANs (part 1)
+  materials: []
+- topic: Link Layer and LANs (part 2)
+  materials: []
+- topic: Wireless and Mobile Networks
+  materials: []
+- topic: Final Exam Review
+  materials: []
+- topic: TBD
+  materials: *id001
+- topic: TBD
+  materials: *id002
+- topic: TBD
+  materials: *id003

@@ -1,8 +1,31 @@
-course_name: CSE589
-course_description: This course explores wireless technologies, mobile networking,
-  and mobile sensing with applications in IoT, signal processing, and human-computer
-  interaction. Students will engage with cutting-edge research in mobile computing
-  systems.
+course_name: CSE589 Modern Network Concepts
+course_description: "This course introduces the principles and practice of computer\
+  \ networking through a two-axis progression: from small, point-to-point communication\
+  \ to shared-medium LANs, multi-hop internetworking, and Internet-scale systems;\
+  \ and from the application layer down to the physical layer. Students build intuition\
+  \ from real network behavior, learn core protocol mechanisms and design trade-offs,\
+  \ and gain hands-on experience via programming and measurement-driven labs/projects\
+  \ using tools such as sockets, Wireshark/tcpdump, Mininet, and containerized environments\
+  \ (Python recommended; C as an advanced option).\r\n\r\nThe objective of the course\
+  \ is to enable students to develop a rigorous understanding of how networked systems\
+  \ are designed, implemented, and evaluated, and to acquire practical skills to build\
+  \ and diagnose networked applications and protocols across layers and at scale.\r\
+  \n\r\nAt the end of this course, each student should be able to:\r\n\r\nExplain\
+  \ the Internet’s layered architecture and key design principles (e.g., encapsulation,\
+  \ end-to-end reasoning) and apply them to analyze new systems.\r\n\r\nImplement\
+  \ client–server applications using socket programming, and reason about application-layer\
+  \ protocols such as HTTP/HTTPS and DNS.\r\n\r\nDescribe and evaluate reliable data\
+  \ transfer mechanisms (ACKs, timeouts, retransmissions), and explain TCP’s reliability,\
+  \ flow control, and congestion control at a conceptual and algorithmic level.\r\n\
+  \r\nPerform IP addressing and subnetting, and explain packet forwarding, routing\
+  \ fundamentals, NAT, and ICMP in practical scenarios.\r\n\r\nExplain link-layer\
+  \ services and mechanisms including framing, error detection, Ethernet switching,\
+  \ ARP, and Wi-Fi medium access (CSMA/CA) at an operational level.\r\n\r\nMeasure\
+  \ and interpret network performance (throughput, latency, loss, jitter), and use\
+  \ standard tools (e.g., ping, traceroute, iperf, Wireshark) to diagnose bottlenecks\
+  \ and failures.\r\n\r\nDescribe foundational security mechanisms (TLS, certificates,\
+  \ authentication) and recognize common network threats (e.g., spoofing, MITM, DoS)\
+  \ and basic mitigations."
 course_semester: Spring 2026
 baseurl: /CSE589_UB_SP26
 url: https://xieyaxiongfly.github.io

@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Home Content{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Home Page Content</h1>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Add Module</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_home_module') }}">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Module Type</label>
+                    <select class="form-select" name="module_type" required>
+                        <option value="markdown">Markdown Section</option>
+                        <option value="people">Instructor & TA Placeholder</option>
+                    </select>
+                </div>
+                <div class="col-md-9">
+                    <label class="form-label">Title (optional)</label>
+                    <input type="text" class="form-control" name="title" placeholder="e.g., Course Information">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <label class="form-label">Content (Markdown)</label>
+                    <textarea class="form-control" name="body" rows="5" placeholder="Write markdown content here..."></textarea>
+                    <div class="form-text">Markdown modules will render this content. People modules ignore it.</div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Add Module</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Current Modules</h5>
+    </div>
+    <div class="card-body">
+        {% if modules %}
+            {% for module in modules %}
+                <div class="card mb-3 module-item" data-module-index="{{ loop.index0 }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">Module {{ loop.index }}</h6>
+                            <div class="btn-group" role="group">
+                                <form method="POST" action="{{ url_for('move_home_module') }}" class="d-inline move-module-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="direction" value="up">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary move-module-btn" {% if loop.first %}disabled{% endif %}>
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('move_home_module') }}" class="d-inline move-module-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="direction" value="down">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary move-module-btn" {% if loop.last %}disabled{% endif %}>
+                                        <i class="fas fa-arrow-down"></i>
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-outline-secondary edit-module-btn">Edit</button>
+                                <form method="POST" action="{{ url_for('delete_home_module') }}" class="d-inline delete-module-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this module?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="module-display">
+                            <p class="mb-1"><strong>Type:</strong> {{ module.type }}</p>
+                            {% if module.title %}
+                                <p class="mb-1"><strong>Title:</strong> {{ module.title }}</p>
+                            {% endif %}
+                            {% if module.type == 'markdown' %}
+                                <p class="mb-0"><strong>Content:</strong> {{ module.body | truncate(160) }}</p>
+                            {% else %}
+                                <p class="mb-0 text-muted">This module will render the Instructor & TA section.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="module-edit mt-3" style="display: none;">
+                            <form method="POST" action="{{ url_for('update_home_module') }}">
+                                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Module Type</label>
+                                        <select class="form-select" name="module_type" required>
+                                            <option value="markdown" {% if module.type == 'markdown' %}selected{% endif %}>Markdown Section</option>
+                                            <option value="people" {% if module.type == 'people' %}selected{% endif %}>Instructor & TA Placeholder</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label">Title (optional)</label>
+                                        <input type="text" class="form-control" name="title" value="{{ module.title }}">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <label class="form-label">Content (Markdown)</label>
+                                        <textarea class="form-control" name="body" rows="5">{{ module.body }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                    <button type="button" class="btn btn-sm btn-secondary cancel-module-edit">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No modules yet. Add a markdown section or a people placeholder.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('move-module-btn') || e.target.closest('.move-module-btn')) {
+        e.preventDefault();
+        handleMoveModule(e.target.closest('form'));
+        return;
+    }
+
+    if (e.target.classList.contains('edit-module-btn')) {
+        const card = e.target.closest('.module-item');
+        const display = card.querySelector('.module-display');
+        const edit = card.querySelector('.module-edit');
+        if (display && edit) {
+            display.style.display = 'none';
+            edit.style.display = 'block';
+        }
+    }
+
+    if (e.target.classList.contains('cancel-module-edit')) {
+        const card = e.target.closest('.module-item');
+        const display = card.querySelector('.module-display');
+        const edit = card.querySelector('.module-edit');
+        if (display && edit) {
+            display.style.display = 'block';
+            edit.style.display = 'none';
+        }
+    }
+});
+
+function handleMoveModule(form) {
+    if (!form) return;
+    const index = form.querySelector('input[name="index"]').value;
+    const direction = form.querySelector('input[name="direction"]').value;
+    const currentCard = form.closest('.module-item');
+    if (!currentCard) return;
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            index: index,
+            direction: direction
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Move failed');
+        }
+        const parent = currentCard.parentElement;
+        if (!parent) return;
+        const sibling = direction === 'up' ? currentCard.previousElementSibling : currentCard.nextElementSibling;
+        if (!sibling || !sibling.classList.contains('module-item')) return;
+
+        if (direction === 'up') {
+            parent.insertBefore(currentCard, sibling);
+        } else {
+            parent.insertBefore(sibling, currentCard);
+        }
+        refreshModuleIndexes();
+    })
+    .catch(() => {
+        alert('Error moving module');
+    });
+}
+
+function refreshModuleIndexes() {
+    const modules = document.querySelectorAll('.module-item');
+    modules.forEach((item, idx) => {
+        item.dataset.moduleIndex = idx.toString();
+
+        const title = item.querySelector('h6');
+        if (title) {
+            title.textContent = `Module ${idx + 1}`;
+        }
+
+        item.querySelectorAll('form.move-module-form input[name="index"]').forEach(input => {
+            input.value = idx.toString();
+        });
+
+        const deleteForm = item.querySelector('form.delete-module-form input[name="index"]');
+        if (deleteForm) {
+            deleteForm.value = idx.toString();
+        }
+
+        const editForm = item.querySelector('.module-edit form input[name="index"]');
+        if (editForm) {
+            editForm.value = idx.toString();
+        }
+    });
+
+    modules.forEach((item, idx) => {
+        const upButton = item.querySelector('form.move-module-form input[value="up"]')?.closest('button');
+        const downButton = item.querySelector('form.move-module-form input[value="down"]')?.closest('button');
+        if (upButton) {
+            upButton.disabled = idx === 0;
+        }
+        if (downButton) {
+            downButton.disabled = idx === modules.length - 1;
+        }
+    });
+}
+</script>
+{% endblock %}

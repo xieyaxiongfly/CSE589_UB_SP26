@@ -152,7 +152,7 @@
  * Page content
  */
 .page-content {
-    padding: $spacing-unit 0;
+    padding: 18px 0;
 }
 
 .page-heading {
@@ -228,6 +228,27 @@ h1 /* .post-title */ {
 /*            font-size: 18px; */
         }
     }
+}
+
+.home {
+    h2 {
+        margin-bottom: 8px;
+    }
+
+    h3,
+    h4 {
+        margin-bottom: 6px;
+    }
+
+    p,
+    ul,
+    ol {
+        margin-bottom: 12px;
+    }
+}
+
+.people-section {
+    margin-top: 16px;
 }
 
 						.footnotes ol li {list-style-type:decimal;}
