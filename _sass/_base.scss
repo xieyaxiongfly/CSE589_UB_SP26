@@ -658,8 +658,8 @@ a.tosu {
     gap: 20px;
 }
 
-.instructor-section.instructor-multi {
-    display: grid;
+.people-section .instructor-section.instructor-multi {
+    display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
 }
@@ -675,6 +675,7 @@ a.tosu {
 }
 
 .people-section .instructor-section.instructor-multi .instructor-card {
+    width: 100%;
     margin-bottom: 0;
     padding: 16px;
 }
