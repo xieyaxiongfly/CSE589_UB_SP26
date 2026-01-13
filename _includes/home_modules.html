@@ -14,6 +14,11 @@
                 <h2>{{ module.title }}</h2>
             {% endif %}
             {% include people_section.html %}
+        {% elsif module.type == "textbooks" %}
+            {% if module.title %}
+                <h2>{{ module.title }}</h2>
+            {% endif %}
+            {% include textbook_section.html %}
         {% endif %}
     {% endfor %}
 {% endif %}

@@ -1,0 +1,43 @@
+{% assign textbooks = site.data.textbooks.textbooks %}
+{% if textbooks and textbooks.size > 0 %}
+<div class="textbook-section">
+    <h2>Textbook</h2>
+    <div class="textbook-grid">
+        {% for book in textbooks %}
+            <div class="textbook-card">
+                <div class="textbook-cover">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image | prepend: site.baseurl }}" alt="{{ book.title }}">
+                    {% else %}
+                        <div class="textbook-placeholder">No Cover</div>
+                    {% endif %}
+                </div>
+                <div class="textbook-info">
+                    {% if book.title %}
+                        <p class="textbook-title"><strong>{{ book.title }}</strong></p>
+                    {% endif %}
+                    {% if book.author %}
+                        <p class="textbook-author"><strong>{{ book.author }}</strong></p>
+                    {% endif %}
+                    {% if book.publisher and book.publisher != "" %}
+                        <p>{{ book.publisher }}</p>
+                    {% endif %}
+                    {% if book.year and book.year != "" %}
+                        <p>Year: {{ book.year }}</p>
+                    {% endif %}
+                    {% if book.isbn and book.isbn != "" %}
+                        <p>ISBN: {{ book.isbn }}</p>
+                    {% endif %}
+                    {% if book.link and book.link != "" %}
+                        {% assign link_label = book.link_text %}
+                        {% if link_label == "" %}
+                            {% assign link_label = "Link" %}
+                        {% endif %}
+                        <p><a href="{{ book.link }}" target="_blank">{{ link_label }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
