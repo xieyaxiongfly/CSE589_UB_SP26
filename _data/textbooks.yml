@@ -1,0 +1,25 @@
+textbooks:
+- title: 'Computer Networking: a Top Down Approach (9th Edition)'
+  author: Jim Kurose, Keith Ross
+  publisher: ''
+  year: ''
+  isbn: ''
+  link: https://gaia.cs.umass.edu/kurose_ross/index.php
+  link_text: Book Website
+  cover_image: /_images/textbook/20260113_185634_Jim_Kurose_TopDown.jpg
+- title: 'Computer Networks: A Systems Approach'
+  author: Larry Peterson, Bruce Davie
+  publisher: ''
+  year: ''
+  isbn: ''
+  link: https://www.amazon.com/Computer-Networks-Approach-Kaufmann-Networking/dp/0128182008
+  link_text: Amazon Link
+  cover_image: /_images/textbook/20260113_190751_Larry_system_approach.jpg
+- title: 'The Sockets Networking API: UNIX® Network Programming Volume 1, Third Edition'
+  author: W. Richard Stevens, Bill Fenner, Andrew M. Rudoff
+  publisher: ''
+  year: ''
+  isbn: ''
+  link: https://www.oreilly.com/library/view/the-sockets-networking/0131411551/
+  link_text: Book Website
+  cover_image: /_images/textbook/20260113_191226_socket.jpeg

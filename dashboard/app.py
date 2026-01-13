@@ -15,9 +15,11 @@ DATA_DIR = os.path.join(SITE_ROOT, '_data')
 CONFIG_FILE = os.path.join(SITE_ROOT, '_config.yml')
 UPLOAD_DIR = os.path.join(SITE_ROOT, 'static_files', 'uploads')
 HOME_MODULES_FILE = os.path.join(DATA_DIR, 'home_modules.yml')
+TEXTBOOKS_FILE = os.path.join(DATA_DIR, 'textbooks.yml')
 ALLOWED_EXTENSIONS = {'pdf', 'ppt', 'pptx', 'doc', 'docx', 'txt', 'jpg', 'png', 'gif'}
 PHOTO_UPLOAD_DIR = os.path.join(SITE_ROOT, '_images', 'pp')
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
+TEXTBOOK_UPLOAD_DIR = os.path.join(SITE_ROOT, '_images', 'textbook')
 
 # Simple authentication (replace with proper auth in production)
 ADMIN_PASSWORD = "admin123"  # Change this!
@@ -71,6 +73,16 @@ def load_home_modules():
 
 def save_home_modules(data):
     with open(HOME_MODULES_FILE, 'w', encoding='utf-8') as file:
+        yaml.dump(data, file, default_flow_style=False, allow_unicode=True, sort_keys=False)
+
+def load_textbooks():
+    if not os.path.exists(TEXTBOOKS_FILE):
+        return {'textbooks': []}
+    with open(TEXTBOOKS_FILE, 'r', encoding='utf-8') as file:
+        return yaml.safe_load(file) or {'textbooks': []}
+
+def save_textbooks(data):
+    with open(TEXTBOOKS_FILE, 'w', encoding='utf-8') as file:
         yaml.dump(data, file, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
 def save_config(data):
@@ -269,6 +281,103 @@ def move_home_module():
     modules_data['modules'] = modules
     save_home_modules(modules_data)
     return redirect(url_for('home'))
+
+@app.route('/materials')
+@require_auth
+def materials():
+    textbooks_data = load_textbooks()
+    return render_template('materials.html', textbooks=textbooks_data.get('textbooks', []))
+
+@app.route('/materials/add_textbook', methods=['POST'])
+@require_auth
+def add_textbook():
+    textbooks_data = load_textbooks()
+    textbooks = textbooks_data.get('textbooks', [])
+    textbooks.append({
+        'title': request.form['title'],
+        'author': request.form['author'],
+        'publisher': request.form.get('publisher', ''),
+        'year': request.form.get('year', ''),
+        'isbn': request.form.get('isbn', ''),
+        'link': request.form.get('link', ''),
+        'link_text': request.form.get('link_text', ''),
+        'cover_image': request.form.get('cover_image', '')
+    })
+    textbooks_data['textbooks'] = textbooks
+    save_textbooks(textbooks_data)
+    flash('Textbook added successfully!', 'success')
+    return redirect(url_for('materials'))
+
+@app.route('/materials/update_textbook', methods=['POST'])
+@require_auth
+def update_textbook():
+    index = int(request.form['index'])
+    textbooks_data = load_textbooks()
+    textbooks = textbooks_data.get('textbooks', [])
+
+    if 0 <= index < len(textbooks):
+        textbooks[index] = {
+            'title': request.form['title'],
+            'author': request.form['author'],
+            'publisher': request.form.get('publisher', ''),
+            'year': request.form.get('year', ''),
+            'isbn': request.form.get('isbn', ''),
+            'link': request.form.get('link', ''),
+            'link_text': request.form.get('link_text', ''),
+            'cover_image': request.form.get('cover_image', '')
+        }
+        textbooks_data['textbooks'] = textbooks
+        save_textbooks(textbooks_data)
+        flash('Textbook updated successfully!', 'success')
+    else:
+        flash('Textbook not found.', 'error')
+
+    return redirect(url_for('materials'))
+
+@app.route('/materials/delete_textbook', methods=['POST'])
+@require_auth
+def delete_textbook():
+    index = int(request.form['index'])
+    textbooks_data = load_textbooks()
+    textbooks = textbooks_data.get('textbooks', [])
+
+    if 0 <= index < len(textbooks):
+        textbooks.pop(index)
+        textbooks_data['textbooks'] = textbooks
+        save_textbooks(textbooks_data)
+        flash('Textbook removed successfully!', 'success')
+    else:
+        flash('Textbook not found.', 'error')
+
+    return redirect(url_for('materials'))
+
+@app.route('/materials/upload_cover', methods=['POST'])
+@require_auth
+def upload_cover():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file selected'})
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No file selected'})
+
+    if file and allowed_image_file(file.filename):
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+        filename = timestamp + filename
+
+        os.makedirs(TEXTBOOK_UPLOAD_DIR, exist_ok=True)
+        file_path = os.path.join(TEXTBOOK_UPLOAD_DIR, filename)
+        file.save(file_path)
+
+        relative_path = f'/_images/textbook/{filename}'
+        return jsonify({
+            'success': True,
+            'message': 'Cover uploaded successfully',
+            'file_path': relative_path
+        })
+
+    return jsonify({'success': False, 'message': 'Invalid file type'})
 
 @app.route('/people/add_instructor', methods=['POST'])
 @require_auth
@@ -983,4 +1092,5 @@ if __name__ == '__main__':
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     os.makedirs(PHOTO_UPLOAD_DIR, exist_ok=True)
+    os.makedirs(TEXTBOOK_UPLOAD_DIR, exist_ok=True)
     app.run(debug=True, host='0.0.0.0', port=8080)

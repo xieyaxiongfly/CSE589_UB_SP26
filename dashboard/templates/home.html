@@ -19,6 +19,7 @@
                     <select class="form-select" name="module_type" required>
                         <option value="markdown">Markdown Section</option>
                         <option value="people">Instructor & TA Placeholder</option>
+                        <option value="textbooks">Textbooks Placeholder</option>
                     </select>
                 </div>
                 <div class="col-md-9">
@@ -83,6 +84,8 @@
                             {% endif %}
                             {% if module.type == 'markdown' %}
                                 <p class="mb-0"><strong>Content:</strong> {{ module.body | truncate(160) }}</p>
+                            {% elsif module.type == 'textbooks' %}
+                                <p class="mb-0 text-muted">This module will render the textbook cards.</p>
                             {% else %}
                                 <p class="mb-0 text-muted">This module will render the Instructor & TA section.</p>
                             {% endif %}
@@ -97,6 +100,7 @@
                                         <select class="form-select" name="module_type" required>
                                             <option value="markdown" {% if module.type == 'markdown' %}selected{% endif %}>Markdown Section</option>
                                             <option value="people" {% if module.type == 'people' %}selected{% endif %}>Instructor & TA Placeholder</option>
+                                            <option value="textbooks" {% if module.type == 'textbooks' %}selected{% endif %}>Textbooks Placeholder</option>
                                         </select>
                                     </div>
                                     <div class="col-md-8">

@@ -119,7 +119,7 @@ modules:
   body: "No use of AI Tools for any submissions\r\n- AI Tools like ChatGPT, Google\
     \ Geimin, etc. are not allowed.\r\n- They can be used to understand the concepts\
     \ and for clarifications.\r\n- Use of AI Tools for the submissions in any class\
-    \ work (Homeworks/Wireshark Labs/Programming Assignments) will not be acceptable."
+    \ work (Homeworks/Programming Assignments) will not be acceptable."
 - type: markdown
   title: Medical Emergencies
   body: Accommodation for medical emergencies will be made on a case-by-case basis.
