@@ -23,3 +23,11 @@ textbooks:
   link: https://www.oreilly.com/library/view/the-sockets-networking/0131411551/
   link_text: Book Website
   cover_image: /_images/textbook/20260113_191226_socket.jpeg
+- title: Computer Networks (5th Edition)
+  author: Andrew Tanenbaum, David Wetherall
+  publisher: ''
+  year: ''
+  isbn: ''
+  link: https://www.amazon.com/Computer-Networks-5th-Andrew-Tanenbaum/dp/0132126958
+  link_text: Amazon Link
+  cover_image: /_images/textbook/20260113_212647_computer_networks_david.jpg
