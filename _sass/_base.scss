@@ -901,6 +901,82 @@ a.tosu {
     color: $title-color;
 }
 
+.assignment-intro {
+    margin-bottom: 20px;
+
+    p {
+        margin-bottom: 10px;
+    }
+}
+
+.assignment-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.assignment-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.assignment-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.assignment-marker {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.4px;
+    flex-shrink: 0;
+}
+
+.assignment-body {
+    flex: 1;
+}
+
+.assignment-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: $title-color;
+}
+
+.assignment-title span {
+    flex: 1;
+}
+
+.assignment-body p {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.assignment-link {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
 @media all and (max-width: 767px) {
     .textbook-grid {
         grid-template-columns: 1fr;

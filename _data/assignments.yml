@@ -1,0 +1,42 @@
+intro: "Programming, like composition, is an individual creative process. Individuals\
+  \ must reach their own understanding of the problem and discover a path to its solution.\
+  \ During this time, discussions with friends are encouraged. However, when the time\
+  \ comes to write the code that solves the problem, such discussions are no longer\
+  \ appropriate; the program must be your/ or your team's work.\r\n\r\nDo not, under\
+  \ any circumstances, copy or adapt a program, code comments, or other source that\
+  \ is not your own individual, unassisted programming work. This includes character-by-character\
+  \ transliteration of another work (whether inspected visually or copied digitally),\
+  \ but it also includes derivative works (i.e., by renaming variable names or subtlely\
+  \ shifting around statements in order to try to hide that copying has occurrred).\
+  \ You may not make use of ChatGPT or other AI composition software. You are also\
+  \ not allowed to use code, comments, or results that are not your own, even when\
+  \ \"citing\" them. Writing code for use by another or using another's code in any\
+  \ form is academic misconduct and will be referred to the University in accordance\
+  \ with the University's academic regulations. You are responsible for ensuring that\
+  \ the code you write for the assignments is not accessible by others.\r\n\r\n##\
+  \ Coding Style\r\nAll of the code you turn in for this course should have good style.\
+  \ Make sure that your code has proper indentation, descriptive comments, and a comment\
+  \ header at the beginning of each file, which includes your name, userid, and a\
+  \ description of the file.\r\n\r\n## Version Control\r\nBecause accidents can happen\
+  \ and it is good practice, we require you to use a version control system to maintain\
+  \ your code for this course. We ask that you setup an account with github, gitlab,\
+  \ or bitbucket, web-based hosting service for projects that use the git revision\
+  \ control system.\r\n\r\n**You must configure these services to use a private code\
+  \ repository. Do NOT under any circumstances make your code public, including after\
+  \ the course is over.**\r\n\r\n## The assignment details"
+assignments:
+- title: TCP Client–Server Messaging
+  link: ''
+  description: Build a TCP client and server where the client streams arbitrary‑length
+    input to the server, and the server accepts connections in a loop, prints received
+    messages, and keeps serving new clients. The focus is on reliable transmission
+    (chunked I/O and partial‑send handling), robust error management, and scripted
+    verification with short, long, and concurrent message tests.
+- title: Reliable Data Transfer over Unreliable Networks
+  link: ''
+  description: Implement a reliable transport layer for file delivery between a sender
+    and receiver that preserves data integrity and ordering over lossy, delayed, and
+    reordered packet networks. Your implementation should handle sequencing, acknowledgments,
+    retransmissions, timeouts, and clean connection termination to complete transfers
+    correctly under adverse network conditions. An emulator is provided to simulate
+    network behaviors such as packet loss, delay, and reordering during validation.

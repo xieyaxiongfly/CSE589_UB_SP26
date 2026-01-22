@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Assignments{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Assignments</h1>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Assignments Intro (Markdown)</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('update_assignments_intro') }}">
+            <textarea class="form-control" name="intro" rows="6" placeholder="Describe policies or general notes...">{{ intro }}</textarea>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Save Intro</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Add Assignment</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_assignment') }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" name="title" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Link (optional)</label>
+                    <input type="url" class="form-control" name="link" placeholder="https://...">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="4" placeholder="Brief description or instructions..."></textarea>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-success">Add Assignment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Assignments List</h5>
+    </div>
+    <div class="card-body">
+        {% if assignments %}
+            {% for item in assignments %}
+                <div class="card mb-3 assignment-item">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">Assignment {{ loop.index }}</h6>
+                            <div class="btn-group" role="group">
+                                <form method="POST" action="{{ url_for('move_assignment') }}" class="d-inline move-assignment-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="direction" value="up">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary move-assignment-btn" {% if loop.first %}disabled{% endif %}>
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('move_assignment') }}" class="d-inline move-assignment-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <input type="hidden" name="direction" value="down">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary move-assignment-btn" {% if loop.last %}disabled{% endif %}>
+                                        <i class="fas fa-arrow-down"></i>
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-outline-secondary edit-assignment-btn">Edit</button>
+                                <form method="POST" action="{{ url_for('delete_assignment') }}" class="d-inline delete-assignment-form">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this assignment?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="assignment-display">
+                            <p class="mb-1"><strong>{{ item.title }}</strong></p>
+                            {% if item.description %}
+                                <p class="mb-1 text-muted">{{ item.description }}</p>
+                            {% endif %}
+                            {% if item.link %}
+                                <p class="mb-0"><a href="{{ item.link }}" target="_blank">Link</a></p>
+                            {% endif %}
+                        </div>
+
+                        <div class="assignment-edit mt-3" style="display: none;">
+                            <form method="POST" action="{{ url_for('update_assignment') }}">
+                                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Title</label>
+                                        <input type="text" class="form-control" name="title" value="{{ item.title }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Link</label>
+                                        <input type="url" class="form-control" name="link" value="{{ item.link }}">
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <label class="form-label">Description</label>
+                                        <textarea class="form-control" name="description" rows="4">{{ item.description }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                    <button type="button" class="btn btn-sm btn-secondary cancel-assignment-edit">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No assignments yet. Add the first one above.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('edit-assignment-btn')) {
+        const card = e.target.closest('.assignment-item');
+        const display = card.querySelector('.assignment-display');
+        const edit = card.querySelector('.assignment-edit');
+        if (display && edit) {
+            display.style.display = 'none';
+            edit.style.display = 'block';
+        }
+    }
+
+    if (e.target.classList.contains('cancel-assignment-edit')) {
+        const card = e.target.closest('.assignment-item');
+        const display = card.querySelector('.assignment-display');
+        const edit = card.querySelector('.assignment-edit');
+        if (display && edit) {
+            display.style.display = 'block';
+            edit.style.display = 'none';
+        }
+    }
+
+    if (e.target.classList.contains('move-assignment-btn') || e.target.closest('.move-assignment-btn')) {
+        e.preventDefault();
+        handleMoveAssignment(e.target.closest('form'));
+    }
+});
+
+function handleMoveAssignment(form) {
+    if (!form) return;
+    const index = form.querySelector('input[name="index"]').value;
+    const direction = form.querySelector('input[name="direction"]').value;
+    const currentCard = form.closest('.assignment-item');
+    if (!currentCard) return;
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            index: index,
+            direction: direction
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Move failed');
+        }
+        const parent = currentCard.parentElement;
+        if (!parent) return;
+        const sibling = direction === 'up' ? currentCard.previousElementSibling : currentCard.nextElementSibling;
+        if (!sibling || !sibling.classList.contains('assignment-item')) return;
+
+        if (direction === 'up') {
+            parent.insertBefore(currentCard, sibling);
+        } else {
+            parent.insertBefore(sibling, currentCard);
+        }
+        refreshAssignmentIndexes();
+    })
+    .catch(() => {
+        alert('Error moving assignment');
+    });
+}
+
+function refreshAssignmentIndexes() {
+    const items = document.querySelectorAll('.assignment-item');
+    items.forEach((item, idx) => {
+        const title = item.querySelector('h6');
+        if (title) {
+            title.textContent = `Assignment ${idx + 1}`;
+        }
+
+        item.querySelectorAll('form.move-assignment-form input[name="index"]').forEach(input => {
+            input.value = idx.toString();
+        });
+
+        const deleteForm = item.querySelector('form.delete-assignment-form input[name="index"]');
+        if (deleteForm) {
+            deleteForm.value = idx.toString();
+        }
+
+        const editForm = item.querySelector('.assignment-edit form input[name="index"]');
+        if (editForm) {
+            editForm.value = idx.toString();
+        }
+    });
+
+    items.forEach((item, idx) => {
+        const upButton = item.querySelector('form.move-assignment-form input[value="up"]')?.closest('button');
+        const downButton = item.querySelector('form.move-assignment-form input[value="down"]')?.closest('button');
+        if (upButton) {
+            upButton.disabled = idx === 0;
+        }
+        if (downButton) {
+            downButton.disabled = idx === items.length - 1;
+        }
+    });
+}
+</script>
+{% endblock %}

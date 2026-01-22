@@ -84,7 +84,7 @@
                             {% endif %}
                             {% if module.type == 'markdown' %}
                                 <p class="mb-0"><strong>Content:</strong> {{ module.body | truncate(160) }}</p>
-                            {% elsif module.type == 'textbooks' %}
+                            {% elif module.type == 'textbooks' %}
                                 <p class="mb-0 text-muted">This module will render the textbook cards.</p>
                             {% else %}
                                 <p class="mb-0 text-muted">This module will render the Instructor & TA section.</p>

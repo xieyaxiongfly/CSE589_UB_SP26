@@ -16,6 +16,7 @@ CONFIG_FILE = os.path.join(SITE_ROOT, '_config.yml')
 UPLOAD_DIR = os.path.join(SITE_ROOT, 'static_files', 'uploads')
 HOME_MODULES_FILE = os.path.join(DATA_DIR, 'home_modules.yml')
 TEXTBOOKS_FILE = os.path.join(DATA_DIR, 'textbooks.yml')
+ASSIGNMENTS_FILE = os.path.join(DATA_DIR, 'assignments.yml')
 ALLOWED_EXTENSIONS = {'pdf', 'ppt', 'pptx', 'doc', 'docx', 'txt', 'jpg', 'png', 'gif'}
 PHOTO_UPLOAD_DIR = os.path.join(SITE_ROOT, '_images', 'pp')
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
@@ -83,6 +84,16 @@ def load_textbooks():
 
 def save_textbooks(data):
     with open(TEXTBOOKS_FILE, 'w', encoding='utf-8') as file:
+        yaml.dump(data, file, default_flow_style=False, allow_unicode=True, sort_keys=False)
+
+def load_assignments():
+    if not os.path.exists(ASSIGNMENTS_FILE):
+        return {'intro': '', 'assignments': []}
+    with open(ASSIGNMENTS_FILE, 'r', encoding='utf-8') as file:
+        return yaml.safe_load(file) or {'intro': '', 'assignments': []}
+
+def save_assignments(data):
+    with open(ASSIGNMENTS_FILE, 'w', encoding='utf-8') as file:
         yaml.dump(data, file, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
 def save_config(data):
@@ -287,6 +298,95 @@ def move_home_module():
 def materials():
     textbooks_data = load_textbooks()
     return render_template('materials.html', textbooks=textbooks_data.get('textbooks', []))
+
+@app.route('/assignments')
+@require_auth
+def assignments():
+    data = load_assignments()
+    return render_template(
+        'assignments.html',
+        intro=data.get('intro', ''),
+        assignments=data.get('assignments', [])
+    )
+
+@app.route('/assignments/update_intro', methods=['POST'])
+@require_auth
+def update_assignments_intro():
+    data = load_assignments()
+    data['intro'] = request.form.get('intro', '').strip()
+    save_assignments(data)
+    flash('Assignments intro updated successfully!', 'success')
+    return redirect(url_for('assignments'))
+
+@app.route('/assignments/add', methods=['POST'])
+@require_auth
+def add_assignment():
+    data = load_assignments()
+    items = data.get('assignments', [])
+    items.append({
+        'title': request.form['title'],
+        'link': request.form.get('link', ''),
+        'description': request.form.get('description', '')
+    })
+    data['assignments'] = items
+    save_assignments(data)
+    flash('Assignment added successfully!', 'success')
+    return redirect(url_for('assignments'))
+
+@app.route('/assignments/update', methods=['POST'])
+@require_auth
+def update_assignment():
+    index = int(request.form['index'])
+    data = load_assignments()
+    items = data.get('assignments', [])
+    if 0 <= index < len(items):
+        items[index] = {
+            'title': request.form['title'],
+            'link': request.form.get('link', ''),
+            'description': request.form.get('description', '')
+        }
+        data['assignments'] = items
+        save_assignments(data)
+        flash('Assignment updated successfully!', 'success')
+    else:
+        flash('Assignment not found.', 'error')
+    return redirect(url_for('assignments'))
+
+@app.route('/assignments/delete', methods=['POST'])
+@require_auth
+def delete_assignment():
+    index = int(request.form['index'])
+    data = load_assignments()
+    items = data.get('assignments', [])
+    if 0 <= index < len(items):
+        items.pop(index)
+        data['assignments'] = items
+        save_assignments(data)
+        flash('Assignment removed successfully!', 'success')
+    else:
+        flash('Assignment not found.', 'error')
+    return redirect(url_for('assignments'))
+
+@app.route('/assignments/move', methods=['POST'])
+@require_auth
+def move_assignment():
+    index = int(request.form['index'])
+    direction = request.form.get('direction')
+    data = load_assignments()
+    items = data.get('assignments', [])
+
+    if not (0 <= index < len(items)):
+        flash('Assignment not found.', 'error')
+        return redirect(url_for('assignments'))
+
+    if direction == 'up' and index > 0:
+        items[index - 1], items[index] = items[index], items[index - 1]
+    elif direction == 'down' and index < len(items) - 1:
+        items[index + 1], items[index] = items[index], items[index + 1]
+
+    data['assignments'] = items
+    save_assignments(data)
+    return redirect(url_for('assignments'))
 
 @app.route('/materials/add_textbook', methods=['POST'])
 @require_auth

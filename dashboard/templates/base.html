@@ -130,6 +130,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ url_for('assignments') }}" class="nav-link {% if request.endpoint == 'assignments' %}active{% endif %}">
+                                <i class="fas fa-tasks me-2"></i>Assignments
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ url_for('schedule') }}" class="nav-link {% if request.endpoint == 'schedule' %}active{% endif %}">
                                 <i class="fas fa-calendar me-2"></i>Schedule & Lectures
                             </a>

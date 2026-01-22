@@ -1,0 +1,29 @@
+{% if site.data.assignments %}
+    {% if site.data.assignments.intro %}
+        <div class="assignment-intro">
+            {{ site.data.assignments.intro | markdownify }}
+        </div>
+    {% endif %}
+
+    {% assign items = site.data.assignments.assignments %}
+    {% if items and items.size > 0 %}
+        <div class="assignment-timeline">
+            {% for item in items %}
+                <div class="assignment-row">
+                    <div class="assignment-marker">A{{ forloop.index }}</div>
+                    <div class="assignment-body">
+                        <div class="assignment-title">
+                            <span>{{ item.title }}</span>
+                            {% if item.link %}
+                                <a href="{{ item.link }}" target="_blank" class="assignment-link">View</a>
+                            {% endif %}
+                        </div>
+                        {% if item.description %}
+                            <p>{{ item.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endif %}
