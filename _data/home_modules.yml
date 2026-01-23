@@ -2,7 +2,8 @@ modules:
 - type: markdown
   title: Course Information
   body: "**Lecture Time:** Tuesday & Thursday, 5:00 PM - 6:20 PM  \r\n**Location:**\
-    \ Knox Hall, 110, North Campus  \r\n**Semester:** Spring 2026"
+    \ Knox Hall, 110, North Campus  \r\n**Final Exam Time:** 5/7/2026, Thursday 7:15PM\
+    \ - 10:15PM  \r\n**Semester:** Spring 2026"
 - type: markdown
   title: Course Description
   body: "This course introduces the principles and practice of computer networking\
@@ -34,8 +35,8 @@ modules:
     \ spoofing, MITM, DoS) and basic mitigations."
 - type: markdown
   title: Grading
-  body: "- **Midterm:** 20%\r\n- **Midterm:** 20%\r\n- **Course Project:** 50%\r\n\
-    - **Homework:** 10%"
+  body: "- **Midterm:** 20%\r\n- **Final Exam:** 20%\r\n- **Course Project:** 50%\r\
+    \n- **Homework:** 10%"
 - type: markdown
   title: Communication
   body: "Course communication will be conducted through Piazza, please join via this\
