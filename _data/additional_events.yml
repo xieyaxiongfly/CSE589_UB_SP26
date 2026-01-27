@@ -1,1 +1,33 @@
-additional_events: []
+additional_events:
+- date: '2026-02-03'
+  type: homework
+  topic: Homework 1
+  materials: []
+- date: '2026-02-17'
+  type: homework_due
+  topic: Homework 1 Due
+  materials: []
+- date: '2026-02-17'
+  type: homework
+  topic: Homework 2
+  materials: []
+- date: '2026-03-03'
+  type: homework_due
+  topic: Homework 2 Due
+  materials: []
+- date: '2026-03-12'
+  type: homework
+  topic: Homework 3
+  materials: []
+- date: '2026-03-26'
+  type: homework_due
+  topic: Homework 3 Due
+  materials: []
+- date: '2026-04-02'
+  type: homework
+  topic: Homework 4
+  materials: []
+- date: '2026-04-16'
+  type: homework_due
+  topic: Homework 4 Due
+  materials: []

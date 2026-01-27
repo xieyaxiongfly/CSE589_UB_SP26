@@ -333,23 +333,39 @@ a.tosu {
     }
 
     .table-row-assignment_due {
-        background-color: #f5f5f5;
+        background-color: #fff3cd;
+    }
+
+    .table-row-homework {
+        background-color: #e7f0ff;
+    }
+
+    .table-row-homework_due {
+        background-color: #ffe7d6;
     }
 
     .table-row-exam {
-        background-color: #eeeeee;
+        background-color: #ffe3e3;
     }
 
     .table-row-no_class {
-        background-color: #f6f6f6;
+        background-color: #f1f1f1;
     }
 
     .table-row-presentation {
-        background-color: #e8e8e8;
+        background-color: #e6f7ff;
     }
 
     .table-row-project_due {
-        background-color: #e0e0e0;
+        background-color: #e7ffe7;
+    }
+
+    .table-row-project {
+        background-color: #dff5e4;
+    }
+
+    .table-row-lecture {
+        background-color: #e8f6ff;
     }
 
     /* Legacy styles for backwards compatibility */
@@ -376,18 +392,88 @@ a.tosu {
         }
     }
 
-    .col-topic {
-        padding: 6px 12px;
-        flex-basis: 45%;
-        line-height: 1.3;
+.col-topic {
+    padding: 6px 12px;
+    flex-basis: 45%;
+    line-height: 1.3;
         
-        .event-type {
-            font-size: 12px;
-            color: #666;
-            font-style: italic;
-            text-transform: capitalize;
-        }
+    .event-type {
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+        text-transform: capitalize;
     }
+}
+
+.lecture-sub-events {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lecture-sub-event {
+    font-size: 13px;
+    color: #2f3a45;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.lecture-sub-event .event-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    color: #5a5a5a;
+    white-space: nowrap;
+}
+
+.lecture-sub-event-homework .event-label {
+    background-color: #cfe2ff;
+    color: #1f3a73;
+}
+
+.lecture-sub-event-homework_due .event-label {
+    background-color: #ffd9c2;
+    color: #7a341f;
+}
+
+.lecture-sub-event-project .event-label {
+    background-color: #cfead6;
+    color: #1f5b33;
+}
+
+.lecture-sub-event-project_due .event-label {
+    background-color: #bfe7c9;
+    color: #1f5b33;
+}
+
+.lecture-sub-event-exam .event-label {
+    background-color: #ffd1d1;
+    color: #7a1f1f;
+}
+
+.lecture-sub-event-presentation .event-label {
+    background-color: #d6f0ff;
+    color: #1f4a73;
+}
+
+.event-material-list {
+    margin-top: 6px;
+}
+
+.event-material {
+    font-size: 12px;
+}
+
+.event-material-label {
+    font-weight: 600;
+    margin-right: 6px;
+    color: #555;
+}
 
     .col-materials {
         padding: 6px 12px;
@@ -759,6 +845,46 @@ a.tosu {
     background-color: #f5f5f5;
     border-radius: 6px;
     border-left: 3px solid $accent-color;
+}
+
+.ta-count-1 .ta-card {
+    flex: 0 0 100%;
+}
+
+.ta-count-2 .ta-card {
+    flex: 0 0 calc(50% - 15px);
+}
+
+.ta-count-3 .ta-card {
+    flex: 0 0 calc(33.333% - 15px);
+}
+
+.ta-count-4 .ta-card {
+    flex: 0 0 calc(25% - 15px);
+}
+
+.ta-count-5 .ta-card {
+    flex: 0 0 calc(33.333% - 15px);
+}
+
+.ta-count-5 .ta-card:nth-child(n + 4) {
+    flex: 0 0 calc(50% - 15px);
+}
+
+.ta-count-6 .ta-card {
+    flex: 0 0 calc(33.333% - 15px);
+}
+
+.ta-count-7 .ta-card {
+    flex: 0 0 calc(25% - 15px);
+}
+
+.ta-count-7 .ta-card:nth-child(n + 5) {
+    flex: 0 0 calc(33.333% - 15px);
+}
+
+.ta-count-8 .ta-card {
+    flex: 0 0 calc(25% - 15px);
 }
 
 .ta-photo {

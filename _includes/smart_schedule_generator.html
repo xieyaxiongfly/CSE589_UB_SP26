@@ -10,6 +10,7 @@ Smart Schedule Generator
 {% assign class_days = site.data.course_schedule.course_schedule.class_days %}
 {% assign lecture_sequence = site.data.course_schedule.lecture_sequence %}
 {% assign all_schedule_items = "" | split: "" %}
+{% assign lecture_dates = "" | split: "" %}
 
 {% comment %} 创建星期名称到数字的映射 (0=Sunday, 1=Monday, ..., 6=Saturday) {% endcomment %}
 {% assign day_name_to_num = "sunday:0,monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6" | split: "," %}
@@ -83,6 +84,7 @@ Smart Schedule Generator
             {% assign actual_date = all_class_dates[forloop.index0] %}
             {% assign item_key = actual_date | append: "|lecture|" | append: forloop.index0 %}
             {% assign all_schedule_items = all_schedule_items | push: item_key %}
+            {% assign lecture_dates = lecture_dates | push: actual_date %}
         {% endif %}
     {% endfor %}
 {% else %}
@@ -117,6 +119,7 @@ Smart Schedule Generator
                 {% assign actual_date = all_class_dates[class_date_index] %}
                 {% assign item_key = actual_date | append: "|lecture|" | append: day_content.topic %}
                 {% assign all_schedule_items = all_schedule_items | push: item_key %}
+                {% assign lecture_dates = lecture_dates | push: actual_date %}
                 {% assign class_date_index = class_date_index | plus: 1 %}
             {% endif %}
         {% endfor %}
@@ -139,6 +142,7 @@ Smart Schedule Generator
     {% assign parts = item | split: "|" %}
     {% assign item_date = parts[0] %}
     {% assign item_type = parts[1] %}
+    {% assign has_lecture_today = lecture_dates contains item_date %}
     {% assign item_timestamp = item_date | date: "%s" | plus: 0 %}
     {% assign diff_seconds = item_timestamp | minus: first_week_start_timestamp %}
     {% assign week_number = diff_seconds | divided_by: 604800 | plus: 1 %}
@@ -168,12 +172,33 @@ Smart Schedule Generator
         {% assign item_topic = parts[2] %}
     {% endif %}
     
+    {% if item_type == "lecture" or item_type == "no_class" or has_lecture_today == false %}
     <li class="table-row table-row-{{ item_type }} {{ current_week_class }}">
         <div class="col col-date">
             <strong>{{ item_date | date: "%m/%d" }} {{ item_date | date: "%a" }}</strong>
         </div>
         <div class="col col-topic">
             <strong>{{ item_topic }}</strong>
+            {% if item_type == "lecture" %}
+                {% assign has_related_events = false %}
+                {% for event in site.data.additional_events.additional_events %}
+                    {% if event.date == item_date %}
+                        {% assign has_related_events = true %}
+                    {% endif %}
+                {% endfor %}
+                {% if has_related_events %}
+                <div class="lecture-sub-events">
+                    {% for event in site.data.additional_events.additional_events %}
+                        {% if event.date == item_date %}
+                        <div class="lecture-sub-event lecture-sub-event-{{ event.type }}">
+                            <span class="event-label">{{ event.type | replace: "_", " " | capitalize }}</span>
+                            <span class="event-topic">{{ event.topic }}</span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endif %}
             {% if item_type != "lecture" and item_type != "no_class" %}
                 <br><span class="event-type">{{ item_type | replace: "_", " " | capitalize }}</span>
             {% endif %}
@@ -188,7 +213,7 @@ Smart Schedule Generator
                     {% for material in lecture_item.materials %}
                         <li><a href="{{ material.url }}" target="_blank">{{ material.name }}</a></li>
                     {% endfor %}
-                    </ul>
+                            </ul>
                 {% endif %}
             {% elsif item_type == "lecture" %}
                 {% comment %} 根据topic查找lecture材料 {% endcomment %}
@@ -223,6 +248,28 @@ Smart Schedule Generator
                         {% endif %}
                     {% endfor %}
                 {% endfor %}
+            {% endif %}
+            {% if item_type == "lecture" %}
+                {% assign has_event_materials = false %}
+                {% for event in site.data.additional_events.additional_events %}
+                    {% if event.date == item_date and event.materials %}
+                        {% assign has_event_materials = true %}
+                    {% endif %}
+                {% endfor %}
+                {% if has_event_materials %}
+                    <ul class="material-list event-material-list">
+                    {% for event in site.data.additional_events.additional_events %}
+                        {% if event.date == item_date and event.materials %}
+                            {% for material in event.materials %}
+                                <li class="event-material">
+                                    <span class="event-material-label">{{ event.type | replace: "_", " " | capitalize }}:</span>
+                                    <a href="{{ material.url }}" target="_blank">{{ material.name }}</a>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
             {% elsif item_type != "no_class" %}
                 {% comment %} 查找额外事件材料 {% endcomment %}
                 {% for event in site.data.additional_events.additional_events %}
@@ -237,4 +284,5 @@ Smart Schedule Generator
             {% endif %}
         </div>
     </li>
+    {% endif %}
 {% endfor %}

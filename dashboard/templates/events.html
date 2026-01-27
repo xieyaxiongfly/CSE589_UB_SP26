@@ -82,8 +82,14 @@
                                     <span class="badge bg-danger">Exam</span>
                                 {% elif event.type == 'assignment_due' %}
                                     <span class="badge bg-warning text-dark">Assignment Due</span>
+                                {% elif event.type == 'homework' %}
+                                    <span class="badge bg-primary">Homework</span>
+                                {% elif event.type == 'homework_due' %}
+                                    <span class="badge bg-warning text-dark">Homework Due</span>
                                 {% elif event.type == 'presentation' %}
                                     <span class="badge bg-info">Presentation</span>
+                                {% elif event.type == 'project' %}
+                                    <span class="badge bg-success">Project</span>
                                 {% elif event.type == 'project_due' %}
                                     <span class="badge bg-success">Project Due</span>
                                 {% else %}
@@ -93,8 +99,9 @@
                             <select class="form-select event-type-input d-none">
                                 <option value="exam" {% if event.type == 'exam' %}selected{% endif %}>Exam</option>
                                 <option value="assignment_due" {% if event.type == 'assignment_due' %}selected{% endif %}>Assignment Due</option>
+                                <option value="homework" {% if event.type == 'homework' %}selected{% endif %}>Homework</option>
                                 <option value="presentation" {% if event.type == 'presentation' %}selected{% endif %}>Presentation</option>
-                                <option value="project_due" {% if event.type == 'project_due' %}selected{% endif %}>Project Due</option>
+                                <option value="project" {% if event.type == 'project' %}selected{% endif %}>Project</option>
                                 <option value="other" {% if event.type == 'other' %}selected{% endif %}>Other</option>
                             </select>
                         </td>
@@ -182,10 +189,22 @@
                             <option value="">Select event type</option>
                             <option value="exam">Exam</option>
                             <option value="assignment_due">Assignment Due</option>
+                            <option value="homework">Homework</option>
                             <option value="presentation">Presentation</option>
-                            <option value="project_due">Project Due</option>
+                            <option value="project">Project</option>
                             <option value="other">Other</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Auto-create due date (Homework/Project)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="due_in_value" min="1" placeholder="e.g., 2">
+                            <select class="form-select" name="due_in_unit">
+                                <option value="days">Days</option>
+                                <option value="weeks">Weeks</option>
+                            </select>
+                        </div>
+                        <div class="form-text">Optional. Only applies when Type is Homework or Project.</div>
                     </div>
                     <div class="mb-3">
                         <label for="event_topic" class="form-label">Topic/Title</label>

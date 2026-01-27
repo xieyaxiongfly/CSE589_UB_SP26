@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 import yaml
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 import hashlib
 from werkzeug.utils import secure_filename
@@ -549,6 +549,7 @@ def add_ta():
     ta_data = {
         'name': request.form['name'],
         'email': request.form['email'],
+        'office': request.form.get('office', ''),
         'office_hours': request.form['office_hours'],
         'profile_pic': request.form.get('profile_pic', ''),
         'webpage': request.form.get('webpage', ''),
@@ -556,10 +557,11 @@ def add_ta():
     }
     
     people_data = load_yaml_file('people.yml')
-    if 'teaching_assistants' not in people_data:
-        people_data['teaching_assistants'] = []
-    
-    people_data['teaching_assistants'].append(ta_data)
+    tas = people_data.get('teaching_assistants') or []
+    if not isinstance(tas, list):
+        tas = []
+    tas.append(ta_data)
+    people_data['teaching_assistants'] = tas
     save_yaml_file('people.yml', people_data)
     flash('Teaching Assistant added successfully!', 'success')
     return redirect(url_for('people'))
@@ -602,12 +604,15 @@ def serve_site_file(filename):
 def update_ta():
     index = int(request.form['index'])
     people_data = load_yaml_file('people.yml')
-    tas = people_data.get('teaching_assistants', [])
+    tas = people_data.get('teaching_assistants') or []
+    if not isinstance(tas, list):
+        tas = []
 
     if 0 <= index < len(tas):
         tas[index] = {
             'name': request.form['name'],
             'email': request.form['email'],
+            'office': request.form.get('office', ''),
             'office_hours': request.form.get('office_hours', ''),
             'profile_pic': request.form.get('profile_pic', ''),
             'webpage': request.form.get('webpage', ''),
@@ -626,7 +631,9 @@ def update_ta():
 def delete_ta():
     index = int(request.form['index'])
     people_data = load_yaml_file('people.yml')
-    tas = people_data.get('teaching_assistants', [])
+    tas = people_data.get('teaching_assistants') or []
+    if not isinstance(tas, list):
+        tas = []
 
     if 0 <= index < len(tas):
         tas.pop(index)
@@ -1084,6 +1091,8 @@ def add_additional_event():
     event_topic = request.form['event_topic']
     material_name = request.form.get('event_material_name', '').strip()
     material_url = request.form.get('event_material_url', '').strip()
+    due_in_value = request.form.get('due_in_value', '').strip()
+    due_in_unit = request.form.get('due_in_unit', 'days')
     
     additional_events_data = load_yaml_file('additional_events.yml')
     
@@ -1105,6 +1114,27 @@ def add_additional_event():
         })
     
     additional_events_data['additional_events'].append(new_event)
+
+    if event_type in ['homework', 'project'] and due_in_value:
+        try:
+            due_amount = int(due_in_value)
+        except ValueError:
+            due_amount = 0
+
+        if due_amount > 0:
+            try:
+                base_date = datetime.strptime(event_date, "%Y-%m-%d")
+                delta_days = due_amount * 7 if due_in_unit == 'weeks' else due_amount
+                due_date = (base_date + timedelta(days=delta_days)).strftime("%Y-%m-%d")
+                due_event = {
+                    'date': due_date,
+                    'type': f"{event_type}_due",
+                    'topic': f"{event_topic} Due",
+                    'materials': list(new_event['materials'])
+                }
+                additional_events_data['additional_events'].append(due_event)
+            except ValueError:
+                pass
     
     # Sort events by date
     additional_events_data['additional_events'].sort(key=lambda x: x['date'])

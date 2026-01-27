@@ -37,8 +37,10 @@
 
     <h2>Teaching Assistants</h2>
     {% if site.data.people.teaching_assistants and site.data.people.teaching_assistants.size > 0 %}
-        <div class="ta-section">
-            {% for ta in site.data.people.teaching_assistants %}
+        {% assign tas = site.data.people.teaching_assistants | slice: 0, 8 %}
+        {% assign ta_count = tas | size %}
+        <div class="ta-section ta-count-{{ ta_count }}">
+            {% for ta in tas %}
             <div class="ta-card">
                 <div class="ta-photo">
                     <img src="{{ta.profile_pic | prepend: site.baseurl }}" class="image--cover">
@@ -53,6 +55,9 @@
                     </h4>
                     {% if ta.email %}
                     <p><strong>Email:</strong> <a href="mailto:{{ta.email}}">{{ta.email}}</a></p>
+                    {% endif %}
+                    {% if ta.office %}
+                    <p><strong>Office:</strong> {{ta.office}}</p>
                     {% endif %}
                     {% if ta.office_hours %}
                     <p><strong>Office Hours:</strong> {{ta.office_hours}}</p>

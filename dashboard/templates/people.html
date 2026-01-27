@@ -82,9 +82,15 @@
             </div>
             <div class="row mt-3">
                 <div class="col-md-6">
+                    <label for="ta_office" class="form-label">Office</label>
+                    <input type="text" class="form-control" id="ta_office" name="office" placeholder="e.g., Davis Hall 321">
+                </div>
+                <div class="col-md-6">
                     <label for="ta_office_hours" class="form-label">Office Hours</label>
                     <input type="text" class="form-control" id="ta_office_hours" name="office_hours" placeholder="e.g., Tue 1-3 PM, Fri 11-1 PM">
                 </div>
+            </div>
+            <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="ta_webpage" class="form-label">Webpage (optional)</label>
                     <input type="url" class="form-control" id="ta_webpage" name="webpage" placeholder="https://...">
@@ -251,6 +257,9 @@
                             {% if ta.office_hours %}
                                 <p class="mt-2 mb-1"><strong>Office Hours:</strong> {{ ta.office_hours }}</p>
                             {% endif %}
+                            {% if ta.office %}
+                                <p class="mb-1"><strong>Office:</strong> {{ ta.office }}</p>
+                            {% endif %}
                             {% if ta.bio %}
                                 <p class="mb-1">{{ ta.bio }}</p>
                             {% endif %}
@@ -281,9 +290,15 @@
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col-md-6">
+                                            <label class="form-label">Office</label>
+                                            <input type="text" class="form-control" name="office" value="{{ ta.office }}">
+                                        </div>
+                                        <div class="col-md-6">
                                             <label class="form-label">Office Hours</label>
                                             <input type="text" class="form-control" name="office_hours" value="{{ ta.office_hours }}">
                                         </div>
+                                    </div>
+                                    <div class="row mt-2">
                                         <div class="col-md-6">
                                             <label class="form-label">Webpage</label>
                                             <input type="url" class="form-control" name="webpage" value="{{ ta.webpage }}">

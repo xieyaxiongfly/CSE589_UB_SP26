@@ -13,4 +13,11 @@ instructors:
   office_hours: ''
   webpage: https://cse.buffalo.edu/~qiao/index.htm
   profile_pic: /_images/pp/20260112_222700_chunming.jpg
-teaching_assistants: null
+teaching_assistants:
+- name: Xingyu Wang
+  email: xwang282@buffalo.edu
+  office: Davis 309 Desk 5
+  office_hours: Monday from 1:00 PM to 3:00 PM
+  profile_pic: /_images/pp/20260127_232007_xingyu.jpg
+  webpage: ''
+  bio: ''
