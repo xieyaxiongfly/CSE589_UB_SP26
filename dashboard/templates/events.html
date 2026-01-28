@@ -248,10 +248,17 @@
 {% block scripts %}
 <script>
 const PUBLIC_BASE = "{{ public_base }}";
+const PUBLIC_ROOT = "{{ public_root }}";
 
 function makePublicUrl(path) {
     if (!path) return '';
-    if (/^https?:\/\//i.test(path)) return path;
+    if (/^https?:\/\//i.test(path)) {
+        if (PUBLIC_BASE && PUBLIC_ROOT && path.startsWith(PUBLIC_ROOT) && !path.startsWith(PUBLIC_BASE)) {
+            const rel = path.substring(PUBLIC_ROOT.length);
+            return `${PUBLIC_BASE.replace(/\/$/, '')}${rel.startsWith('/') ? rel : `/${rel}`}`;
+        }
+        return path;
+    }
     if (!PUBLIC_BASE) return path;
     const base = PUBLIC_BASE.replace(/\/$/, '');
     const rel = path.startsWith('/') ? path : `/${path}`;

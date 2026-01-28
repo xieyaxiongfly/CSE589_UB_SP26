@@ -308,7 +308,9 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const PUBLIC_BASE = "{{ public_base }}";
+    const PUBLIC_ROOT = "{{ public_root }}";
     window.publicBaseUrl = PUBLIC_BASE || '';
+    window.publicRootUrl = PUBLIC_ROOT || '';
 
     // Load recent files
     loadRecentFiles();
@@ -739,7 +741,13 @@ function populateMaterialFileSelects(files, scope) {
 
 function makePublicUrl(path) {
     if (!path) return '';
-    if (/^https?:\/\//i.test(path)) return path;
+    if (/^https?:\/\//i.test(path)) {
+        if (window.publicBaseUrl && window.publicRootUrl && path.startsWith(window.publicRootUrl) && !path.startsWith(window.publicBaseUrl)) {
+            const rel = path.substring(window.publicRootUrl.length);
+            return `${window.publicBaseUrl}${rel.startsWith('/') ? rel : `/${rel}`}`;
+        }
+        return path;
+    }
     if (!window.publicBaseUrl) return path;
     const base = window.publicBaseUrl.replace(/\/$/, '');
     const rel = path.startsWith('/') ? path : `/${path}`;
