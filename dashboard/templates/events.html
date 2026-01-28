@@ -453,7 +453,7 @@ function uploadFile() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            document.getElementById('event_material_url').value = data.file_path;
+            document.getElementById('event_material_url').value = data.file_url || data.file_path;
             if (!document.getElementById('event_material_name').value) {
                 document.getElementById('event_material_name').value = data.filename;
             }

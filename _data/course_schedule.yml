@@ -123,55 +123,101 @@ lectures:
     materials: &id003 []
 lecture_sequence:
 - topic: Course Introduction
-  materials: []
+  materials:
+  - name: Overview.pdf
+    url: /static_files/uploads/Overview.pdf
 - topic: Introduction of Networks (part 1)
-  materials: []
+  materials:
+  - name: Chapter_1_P1.pdf
+    url: /static_files/uploads/Chapter_1_P1.pdf
 - topic: Introduction of Networks (part 2)
-  materials: []
+  materials:
+  - name: Chapter_1_P2.pdf
+    url: /static_files/uploads/Chapter_1_P2.pdf
 - topic: Introduction of Networks (part 3)
-  materials: []
+  materials:
+  - name: Chapter_1_P3.pdf
+    url: /static_files/uploads/Chapter_1_P3.pdf
 - topic: Application Layer (part 1)
-  materials: []
+  materials:
+  - name: Chapter_2_P1.pdf
+    url: /static_files/uploads/Chapter_2_P1.pdf
 - topic: Application Layer (part 2)
-  materials: []
+  materials:
+  - name: Chapter_2_P2.pdf
+    url: /static_files/uploads/Chapter_2_P2.pdf
 - topic: Application Layer (part 3)
-  materials: []
+  materials:
+  - name: Chapter_2_P3.pdf
+    url: /static_files/uploads/Chapter_2_P3.pdf
 - topic: Application Layer (part 4)
-  materials: []
+  materials:
+  - name: Chapter_2_P4.pdf
+    url: /static_files/uploads/Chapter_2_P4.pdf
 - topic: Transport Layer (part 1)
-  materials: []
+  materials:
+  - name: Chapter_3_P1.pdf
+    url: /static_files/uploads/Chapter_3_P1.pdf
 - topic: Transport Layer (part 2)
-  materials: []
+  materials:
+  - name: Chapter_3_P2.pdf
+    url: /static_files/uploads/Chapter_3_P2.pdf
 - topic: Transport Layer (part 3)
-  materials: []
+  materials:
+  - name: Chapter_3_P3.pdf
+    url: /static_files/uploads/Chapter_3_P3.pdf
 - topic: Transport Layer (part 4)
-  materials: []
+  materials:
+  - name: Chapter_3_P4.pdf
+    url: /static_files/uploads/Chapter_3_P4.pdf
 - topic: Mid-Term Exam Review
   materials: []
 - topic: Mid-Term Exam
   materials: []
 - topic: Transport Layer (part 5)
-  materials: []
+  materials:
+  - name: Chapter_3_P5.pdf
+    url: /static_files/uploads/Chapter_3_P5.pdf
 - topic: 'Network Layer: Data Plane (part 1)'
-  materials: []
+  materials:
+  - name: Chapter_4_P1.pdf
+    url: /static_files/uploads/Chapter_4_P1.pdf
 - topic: 'Network Layer: Data Plane (part 2)'
-  materials: []
+  materials:
+  - name: Chapter_4_P2.pdf
+    url: /static_files/uploads/Chapter_4_P2.pdf
 - topic: 'Network Layer: Data Plane (part 3)'
-  materials: []
+  materials:
+  - name: Chapter_4_P3.pdf
+    url: /static_files/uploads/Chapter_4_P3.pdf
 - topic: 'Network Layer: Data Plane (part 4)'
-  materials: []
+  materials:
+  - name: Chapter_4_P4.pdf
+    url: /static_files/uploads/Chapter_4_P4.pdf
 - topic: 'Network Layer: Control Plane (part 1)'
-  materials: []
+  materials:
+  - name: Chapter_5_P1.pdf
+    url: /static_files/uploads/Chapter_5_P1.pdf
 - topic: 'Network Layer: Control Plane (part 2)'
-  materials: []
+  materials:
+  - name: Chapter_5_P2.pdf
+    url: /static_files/uploads/Chapter_5_P2.pdf
 - topic: 'Network Layer: Control Plane (part 3)'
-  materials: []
+  materials:
+  - name: Chapter_5_P3.pdf
+    url: /static_files/uploads/Chapter_5_P3.pdf
 - topic: Link Layer and LANs (part 1)
-  materials: []
+  materials:
+  - name: Chapter_6_P1.pdf
+    url: /static_files/uploads/Chapter_6_P1.pdf
 - topic: Link Layer and LANs (part 2)
-  materials: []
+  materials:
+  - name: Chapter_6_P2.pdf
+    url: /static_files/uploads/Chapter_6_P2.pdf
 - topic: Wireless and Mobile Networks
-  materials: []
+  materials:
+  - name: Chapter_7_P1.pdf
+    url: /static_files/uploads/Chapter_7_P1.pdf
 - topic: Final Exam Review
   materials: []
 - topic: TBD

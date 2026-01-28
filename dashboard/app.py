@@ -66,6 +66,19 @@ def load_config():
     except FileNotFoundError:
         return {}
 
+def build_public_url(relative_path):
+    config = load_config()
+    base_url = (config.get('url') or '').rstrip('/')
+    base_path = (config.get('baseurl') or '').strip()
+    if base_path and not base_path.startswith('/'):
+        base_path = '/' + base_path
+    rel = relative_path if relative_path.startswith('/') else '/' + relative_path
+    if base_url:
+        return f"{base_url}{base_path}{rel}"
+    if base_path:
+        return f"{base_path}{rel}"
+    return rel
+
 def load_home_modules():
     if not os.path.exists(HOME_MODULES_FILE):
         return {'modules': []}
@@ -986,11 +999,13 @@ def upload_file():
         
         # Return relative path for use in materials
         relative_path = f'/static_files/uploads/{filename}'
+        public_url = build_public_url(relative_path)
         
         return jsonify({
             'success': True, 
             'message': 'File uploaded successfully',
             'file_path': relative_path,
+            'file_url': public_url,
             'filename': filename
         })
     
@@ -1003,14 +1018,16 @@ def get_uploaded_files():
     if os.path.exists(UPLOAD_DIR):
         for filename in os.listdir(UPLOAD_DIR):
             if allowed_file(filename):
+                relative_path = f'/static_files/uploads/{filename}'
                 files.append({
                     'name': filename,
-                    'path': f'/static_files/uploads/{filename}'
+                    'path': relative_path,
+                    'url': build_public_url(relative_path)
                 })
     
-    # Sort by newest first
+    # Sort by newest filename prefix (timestamp) first
     files.sort(key=lambda x: x['name'], reverse=True)
-    return jsonify({'files': files[:10]})  # Return latest 10 files
+    return jsonify({'files': files})
 
 @app.route('/edit_lecture', methods=['POST'])
 @require_auth

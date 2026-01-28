@@ -258,6 +258,9 @@
                                                 <div class="col-6">
                                                     <input type="text" class="form-control form-control-sm material-url-input"
                                                            value="{{ material.url }}" placeholder="URL">
+                                                    <select class="form-select form-select-sm mt-1 material-file-select">
+                                                        <option value="">Choose uploaded file</option>
+                                                    </select>
                                                 </div>
                                                 <div class="col-1">
                                                     <button type="button" class="btn btn-sm btn-outline-danger remove-material-edit">
@@ -577,19 +580,22 @@ function loadRecentFiles() {
     .then(data => {
         const filesList = document.getElementById('files-list');
         filesList.innerHTML = '';
+        window.uploadedFiles = data.files || [];
+        populateMaterialFileSelects(window.uploadedFiles);
         
-        if (data.files && data.files.length > 0) {
-            data.files.forEach(file => {
+        const recentFiles = (data.files || []).slice(0, 5);
+        if (recentFiles.length > 0) {
+            recentFiles.forEach(file => {
                 const item = document.createElement('div');
                 item.className = 'list-group-item d-flex justify-content-between align-items-center';
                 item.innerHTML = `
                     <div>
                         <strong>${file.name}</strong>
-                        <small class="text-muted d-block">${file.path}</small>
+                        <small class="text-muted d-block">${file.url || file.path}</small>
                     </div>
                     <div class="btn-group">
                         <button type="button" class="btn btn-sm btn-outline-primary copy-url-btn" 
-                                data-url="${file.path}" title="Copy URL">
+                                data-url="${file.url || file.path}" title="Copy URL">
                             <i class="fas fa-copy"></i>
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-danger delete-file-btn" 
@@ -658,7 +664,6 @@ function saveLectureEdit(card) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Lecture saved successfully!');
             location.reload();
         } else {
             alert('Error saving lecture: ' + data.message);
@@ -681,6 +686,9 @@ function addMaterialEditRow(editDiv) {
         </div>
         <div class="col-6">
             <input type="text" class="form-control form-control-sm material-url-input" placeholder="URL">
+            <select class="form-select form-select-sm mt-1 material-file-select">
+                <option value="">Choose uploaded file</option>
+            </select>
         </div>
         <div class="col-1">
             <button type="button" class="btn btn-sm btn-outline-danger remove-material-edit">
@@ -689,39 +697,51 @@ function addMaterialEditRow(editDiv) {
         </div>
     `;
     materialsEdit.appendChild(newRow);
+    populateMaterialFileSelects(window.uploadedFiles || [], newRow);
 }
 
-// Show add material modal (simplified - direct prompt for now)
-function showAddMaterialModal(card) {
-    const lectureIndex = card.dataset.index;
-    
-    const name = prompt('Material name:');
-    if (!name) return;
-    
-    const url = prompt('Material URL:');
-    if (!url) return;
-    
-    fetch('{{ url_for("add_material") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            lecture_index: lectureIndex,
-            material_name: name,
-            material_url: url
-        })
-    })
-    .then(response => {
-        if (response.ok) {
-            location.reload();
-        } else {
-            alert('Error adding material');
+function populateMaterialFileSelects(files, scope) {
+    const container = scope || document;
+    container.querySelectorAll('.material-file-select').forEach(select => {
+        if (select.dataset.populated === 'true') return;
+        if (!files || files.length === 0) {
+            select.dataset.populated = 'true';
+            return;
         }
-    })
-    .catch(error => {
-        alert('Error adding material');
+        files.forEach(file => {
+            const option = document.createElement('option');
+            option.value = file.url || file.path;
+            option.textContent = file.name;
+            select.appendChild(option);
+        });
+        select.addEventListener('change', function() {
+            const row = this.closest('.material-edit-row');
+            if (!row) return;
+            const urlInput = row.querySelector('.material-url-input');
+            const nameInput = row.querySelector('.material-name-input');
+            if (urlInput && this.value) {
+                urlInput.value = this.value;
+            }
+            if (nameInput && this.value) {
+                const selected = this.options[this.selectedIndex]?.textContent || '';
+                if (!nameInput.value.trim()) {
+                    nameInput.value = selected;
+                }
+            }
+        });
+        select.dataset.populated = 'true';
     });
+}
+
+// Add material: switch to edit mode and add a row with file selector
+function showAddMaterialModal(card) {
+    const display = card.querySelector('.lecture-display');
+    const edit = card.querySelector('.lecture-edit');
+    if (display && edit) {
+        display.style.display = 'none';
+        edit.style.display = 'block';
+    }
+    addMaterialEditRow(edit);
 }
 
 // Delete material
