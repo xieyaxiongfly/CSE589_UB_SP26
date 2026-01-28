@@ -1,8 +1,16 @@
 additional_events:
+- date: '2026-01-29'
+  type: project
+  topic: PA1 Message Exchanging
+  materials:
+  - name: Project 1 Description
+    url: https://github.com/xieyaxiongfly/CSE589_ProgrammingAssignment/tree/main/A1_socket
 - date: '2026-02-03'
   type: homework
   topic: Homework 1
-  materials: []
+  materials:
+  - name: Questions
+    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/CSE589_Network_HomeWork_SP26_HW1.pdf
 - date: '2026-02-17'
   type: homework_due
   topic: Homework 1 Due
@@ -11,6 +19,16 @@ additional_events:
   type: homework
   topic: Homework 2
   materials: []
+- date: '2026-02-19'
+  type: project_due
+  topic: PA1 Message Exchanging Due
+  materials: []
+- date: '2026-02-26'
+  type: project
+  topic: PA2 Reliable Transmission
+  materials:
+  - name: Project 2 Description
+    url: https://github.com/xieyaxiongfly/CSE589_ProgrammingAssignment/tree/main/A2_reliable
 - date: '2026-03-03'
   type: homework_due
   topic: Homework 2 Due
@@ -22,6 +40,10 @@ additional_events:
 - date: '2026-03-26'
   type: homework_due
   topic: Homework 3 Due
+  materials: []
+- date: '2026-03-26'
+  type: project_due
+  topic: Reliable Transmission Due
   materials: []
 - date: '2026-04-02'
   type: homework

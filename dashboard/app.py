@@ -1284,6 +1284,25 @@ def add_event_material():
     
     return jsonify({'success': False, 'message': 'Event not found'})
 
+@app.route('/delete_event_material', methods=['POST'])
+@require_auth
+def delete_event_material():
+    data = request.get_json()
+    event_index = data.get('event_index')
+    material_index = data.get('material_index')
+
+    additional_events_data = load_yaml_file('additional_events.yml')
+    if 'additional_events' in additional_events_data and 0 <= event_index < len(additional_events_data['additional_events']):
+        event = additional_events_data['additional_events'][event_index]
+        materials = event.get('materials', [])
+        if 0 <= material_index < len(materials):
+            materials.pop(material_index)
+            event['materials'] = materials
+            save_yaml_file('additional_events.yml', additional_events_data)
+            return jsonify({'success': True, 'message': 'Material deleted successfully'})
+
+    return jsonify({'success': False, 'message': 'Material not found'})
+
 if __name__ == '__main__':
     # Create data directory if it doesn't exist
     os.makedirs(DATA_DIR, exist_ok=True)
