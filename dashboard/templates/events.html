@@ -247,6 +247,17 @@
 
 {% block scripts %}
 <script>
+const PUBLIC_BASE = "{{ public_base }}";
+
+function makePublicUrl(path) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    if (!PUBLIC_BASE) return path;
+    const base = PUBLIC_BASE.replace(/\/$/, '');
+    const rel = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${rel}`;
+}
+
 // Event management functions
 function editEvent(button) {
     const row = button.closest('tr');
@@ -453,7 +464,7 @@ function uploadFile() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            document.getElementById('event_material_url').value = data.file_url || data.file_path;
+            document.getElementById('event_material_url').value = makePublicUrl(data.file_url || data.file_path);
             if (!document.getElementById('event_material_name').value) {
                 document.getElementById('event_material_name').value = data.filename;
             }

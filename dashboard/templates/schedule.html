@@ -307,6 +307,9 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const PUBLIC_BASE = "{{ public_base }}";
+    window.publicBaseUrl = PUBLIC_BASE || '';
+
     // Load recent files
     loadRecentFiles();
     
@@ -586,16 +589,17 @@ function loadRecentFiles() {
         const recentFiles = (data.files || []).slice(0, 5);
         if (recentFiles.length > 0) {
             recentFiles.forEach(file => {
+                const displayUrl = makePublicUrl(file.url || file.path);
                 const item = document.createElement('div');
                 item.className = 'list-group-item d-flex justify-content-between align-items-center';
                 item.innerHTML = `
                     <div>
                         <strong>${file.name}</strong>
-                        <small class="text-muted d-block">${file.url || file.path}</small>
+                        <small class="text-muted d-block">${displayUrl}</small>
                     </div>
                     <div class="btn-group">
                         <button type="button" class="btn btn-sm btn-outline-primary copy-url-btn" 
-                                data-url="${file.url || file.path}" title="Copy URL">
+                                data-url="${displayUrl}" title="Copy URL">
                             <i class="fas fa-copy"></i>
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-danger delete-file-btn" 
@@ -710,7 +714,7 @@ function populateMaterialFileSelects(files, scope) {
         }
         files.forEach(file => {
             const option = document.createElement('option');
-            option.value = file.url || file.path;
+            option.value = makePublicUrl(file.url || file.path);
             option.textContent = file.name;
             select.appendChild(option);
         });
@@ -731,6 +735,15 @@ function populateMaterialFileSelects(files, scope) {
         });
         select.dataset.populated = 'true';
     });
+}
+
+function makePublicUrl(path) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    if (!window.publicBaseUrl) return path;
+    const base = window.publicBaseUrl.replace(/\/$/, '');
+    const rel = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${rel}`;
 }
 
 // Add material: switch to edit mode and add a row with file selector

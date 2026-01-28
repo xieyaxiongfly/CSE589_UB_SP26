@@ -79,6 +79,16 @@ def build_public_url(relative_path):
         return f"{base_path}{rel}"
     return rel
 
+def get_public_base():
+    config = load_config()
+    base_url = (config.get('url') or '').rstrip('/')
+    base_path = (config.get('baseurl') or '').strip()
+    if base_path and not base_path.startswith('/'):
+        base_path = '/' + base_path
+    if base_url:
+        return f"{base_url}{base_path}"
+    return base_path or ''
+
 def load_home_modules():
     if not os.path.exists(HOME_MODULES_FILE):
         return {'modules': []}
@@ -169,7 +179,7 @@ def schedule():
     merged_data['lecture_sequence'] = build_lecture_sequence(schedule_data)
     merged_data['additional_events'] = additional_events_data.get('additional_events', [])
     
-    return render_template('schedule.html', schedule=merged_data)
+    return render_template('schedule.html', schedule=merged_data, public_base=get_public_base())
 
 @app.route('/schedule/add_lecture', methods=['POST'])
 @require_auth
@@ -1207,7 +1217,7 @@ def delete_additional_event():
 @require_auth
 def events():
     additional_events_data = load_yaml_file('additional_events.yml')
-    return render_template('events.html', events=additional_events_data)
+    return render_template('events.html', events=additional_events_data, public_base=get_public_base())
 
 @app.route('/add_event_material', methods=['POST'])
 @require_auth
