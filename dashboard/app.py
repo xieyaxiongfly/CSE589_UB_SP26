@@ -93,6 +93,24 @@ def get_public_root():
     config = load_config()
     return (config.get('url') or '').rstrip('/')
 
+def normalize_material_url(raw_url):
+    if not raw_url:
+        return raw_url
+    url = raw_url.strip()
+    public_base = get_public_base().rstrip('/')
+    public_root = get_public_root().rstrip('/')
+    if url.startswith('http://') or url.startswith('https://'):
+        if public_base and public_root and url.startswith(public_root) and not url.startswith(public_base):
+            rel = url[len(public_root):]
+            if not rel.startswith('/'):
+                rel = '/' + rel
+            return f"{public_base}{rel}"
+        return url
+    if url.startswith('/static_files/') or url.startswith('static_files/'):
+        rel = url if url.startswith('/') else f"/{url}"
+        return f"{public_base}{rel}" if public_base else rel
+    return url
+
 def load_home_modules():
     if not os.path.exists(HOME_MODULES_FILE):
         return {'modules': []}
@@ -213,7 +231,7 @@ def add_lecture():
 def add_material():
     lecture_index = int(request.form['lecture_index'])
     material_name = request.form['material_name']
-    material_url = request.form['material_url']
+    material_url = normalize_material_url(request.form['material_url'])
     
     schedule_data = load_yaml_file('course_schedule.yml')
 
@@ -1054,7 +1072,11 @@ def edit_lecture():
     data = request.get_json()
     lecture_index = data.get('index')
     topic = data.get('topic')
-    materials = data.get('materials', [])
+    raw_materials = data.get('materials', [])
+    materials = [
+        {'name': m.get('name'), 'url': normalize_material_url(m.get('url', ''))}
+        for m in raw_materials
+    ]
     
     schedule_data = load_yaml_file('course_schedule.yml')
 
@@ -1126,7 +1148,7 @@ def add_additional_event():
     event_type = request.form['event_type']
     event_topic = request.form['event_topic']
     material_name = request.form.get('event_material_name', '').strip()
-    material_url = request.form.get('event_material_url', '').strip()
+    material_url = normalize_material_url(request.form.get('event_material_url', '').strip())
     due_in_value = request.form.get('due_in_value', '').strip()
     due_in_unit = request.form.get('due_in_unit', 'days')
     
@@ -1187,7 +1209,11 @@ def edit_additional_event():
     date = data.get('date')
     event_type = data.get('type')
     topic = data.get('topic')
-    materials = data.get('materials', [])
+    raw_materials = data.get('materials', [])
+    materials = [
+        {'name': m.get('name'), 'url': normalize_material_url(m.get('url', ''))}
+        for m in raw_materials
+    ]
     
     additional_events_data = load_yaml_file('additional_events.yml')
     
@@ -1239,7 +1265,7 @@ def add_event_material():
     data = request.get_json()
     event_index = data.get('event_index')
     material_name = data.get('material_name')
-    material_url = data.get('material_url')
+    material_url = normalize_material_url(data.get('material_url'))
     
     additional_events_data = load_yaml_file('additional_events.yml')
     
