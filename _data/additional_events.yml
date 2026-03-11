@@ -43,25 +43,35 @@ additional_events:
   type: homework_due
   topic: Homework 2 Due
   materials: []
-- date: '2026-03-12'
+- date: '2026-03-26'
   type: homework
   topic: Homework 3
   materials: []
-- date: '2026-03-26'
-  type: homework_due
-  topic: Homework 3 Due
-  materials: []
-- date: '2026-04-02'
-  type: homework
-  topic: Homework 4
-  materials: []
+  due_in_value: '2'
+  due_in_unit: weeks
+  group_id: cdc75f4f088741aaa0be7fca1051f2a9
 - date: '2026-04-02'
   type: project_due
   topic: PA2 Reliable Transmission Due
   materials: []
   group_id: 111d7ab7ea0b4680a73e998d62dbc9b6
   auto_due: true
-- date: '2026-04-16'
+- date: '2026-04-09'
+  type: homework_due
+  topic: Homework 3 Due
+  materials: []
+  group_id: cdc75f4f088741aaa0be7fca1051f2a9
+  auto_due: true
+- date: '2026-04-09'
+  type: homework
+  topic: Homework 4
+  materials: []
+  group_id: fb2e2f78d0984c03a01d4dfa15a23b24
+  due_in_value: '2'
+  due_in_unit: weeks
+- date: '2026-04-23'
   type: homework_due
   topic: Homework 4 Due
   materials: []
+  group_id: fb2e2f78d0984c03a01d4dfa15a23b24
+  auto_due: true
