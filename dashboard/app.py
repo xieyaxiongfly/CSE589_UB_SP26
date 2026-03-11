@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 import yaml
 import os
 from datetime import datetime, timedelta
+from uuid import uuid4
 from functools import wraps
 import hashlib
 from werkzeug.utils import secure_filename
@@ -1163,6 +1164,13 @@ def add_additional_event():
         'topic': event_topic,
         'materials': []
     }
+    group_id = None
+    if event_type in ['homework', 'project']:
+        group_id = uuid4().hex
+        new_event['group_id'] = group_id
+        if due_in_value:
+            new_event['due_in_value'] = due_in_value
+            new_event['due_in_unit'] = due_in_unit
     
     # Add material if provided
     if material_name and material_url:
@@ -1184,12 +1192,16 @@ def add_additional_event():
                 base_date = datetime.strptime(event_date, "%Y-%m-%d")
                 delta_days = due_amount * 7 if due_in_unit == 'weeks' else due_amount
                 due_date = (base_date + timedelta(days=delta_days)).strftime("%Y-%m-%d")
+                due_materials = list(new_event['materials']) if event_type == 'homework' else []
                 due_event = {
                     'date': due_date,
                     'type': f"{event_type}_due",
                     'topic': f"{event_topic} Due",
-                    'materials': list(new_event['materials'])
+                    'materials': due_materials
                 }
+                if group_id:
+                    due_event['group_id'] = group_id
+                    due_event['auto_due'] = True
                 additional_events_data['additional_events'].append(due_event)
             except ValueError:
                 pass
@@ -1210,6 +1222,8 @@ def edit_additional_event():
     event_type = data.get('type')
     topic = data.get('topic')
     raw_materials = data.get('materials', [])
+    due_in_value = (data.get('due_in_value') or '').strip()
+    due_in_unit = data.get('due_in_unit') or 'days'
     materials = [
         {'name': m.get('name'), 'url': normalize_material_url(m.get('url', ''))}
         for m in raw_materials
@@ -1218,13 +1232,69 @@ def edit_additional_event():
     additional_events_data = load_yaml_file('additional_events.yml')
     
     if 'additional_events' in additional_events_data and 0 <= index < len(additional_events_data['additional_events']):
-        additional_events_data['additional_events'][index] = {
+        existing_event = additional_events_data['additional_events'][index]
+        group_id = existing_event.get('group_id')
+
+        updated_event = {
             'date': date,
             'type': event_type,
             'topic': topic,
             'materials': materials
         }
-        
+        if group_id:
+            updated_event['group_id'] = group_id
+        if event_type in ['homework', 'project'] and due_in_value:
+            updated_event['due_in_value'] = due_in_value
+            updated_event['due_in_unit'] = due_in_unit
+
+        additional_events_data['additional_events'][index] = updated_event
+
+        # Remove existing auto due entries for this group/topic before recalculating
+        if event_type in ['homework', 'project']:
+            def _is_related_due(ev):
+                if group_id and ev.get('group_id') == group_id:
+                    return str(ev.get('type', '')).endswith('_due')
+                return ev.get('type') in ['homework_due', 'project_due'] and ev.get('topic') == f"{topic} Due"
+            additional_events_data['additional_events'] = [
+                ev for ev in additional_events_data['additional_events'] if not _is_related_due(ev)
+            ]
+
+        # Handle auto due update for homework/project
+        if event_type in ['homework', 'project'] and due_in_value:
+            if not group_id:
+                group_id = uuid4().hex
+                updated_event['group_id'] = group_id
+                additional_events_data['additional_events'][index]['group_id'] = group_id
+            try:
+                due_amount = int(due_in_value)
+            except ValueError:
+                due_amount = 0
+            if due_amount > 0:
+                try:
+                    base_date = datetime.strptime(date, "%Y-%m-%d")
+                    delta_days = due_amount * 7 if due_in_unit == 'weeks' else due_amount
+                    due_date = (base_date + timedelta(days=delta_days)).strftime("%Y-%m-%d")
+                    due_type = f"{event_type}_due"
+                    due_topic = f"{topic} Due"
+                    due_materials = list(materials) if due_type == 'homework_due' else []
+                    due_event = {
+                        'date': due_date,
+                        'type': due_type,
+                        'topic': due_topic,
+                        'materials': due_materials,
+                        'group_id': group_id,
+                        'auto_due': True
+                    }
+                    additional_events_data['additional_events'].append(due_event)
+                except ValueError:
+                    pass
+        elif group_id:
+            # If type changed away, remove linked auto due
+            additional_events_data['additional_events'] = [
+                ev for ev in additional_events_data['additional_events']
+                if ev.get('group_id') != group_id or not str(ev.get('type', '')).endswith('_due')
+            ]
+
         # Sort events by date
         additional_events_data['additional_events'].sort(key=lambda x: x['date'])
         

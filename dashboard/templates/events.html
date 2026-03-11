@@ -108,6 +108,16 @@
                         <td>
                             <span class="event-topic-display">{{ event.topic }}</span>
                             <input type="text" class="form-control event-topic-input d-none" value="{{ event.topic }}">
+                            <div class="due-controls d-none mt-2">
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="form-control due-in-value" min="1" placeholder="Due in">
+                                    <select class="form-select due-in-unit">
+                                        <option value="days">Days</option>
+                                        <option value="weeks">Weeks</option>
+                                    </select>
+                                </div>
+                                <div class="form-text">Only for Homework/Project.</div>
+                            </div>
                         </td>
                         <td>
                             <div class="event-materials-display">
@@ -343,6 +353,7 @@ function editEvent(button) {
     row.querySelectorAll('.delete-material-btn').forEach(el => el.classList.remove('d-none'));
     row.querySelectorAll('.material-link').forEach(el => el.classList.add('d-none'));
     row.querySelectorAll('.material-edit-inputs').forEach(el => el.classList.remove('d-none'));
+    toggleDueControls(row);
     
     // Toggle buttons
     row.querySelector('.edit-event-btn').classList.add('d-none');
@@ -360,6 +371,8 @@ function cancelEventEdit(button) {
     row.querySelectorAll('.delete-material-btn').forEach(el => el.classList.add('d-none'));
     row.querySelectorAll('.material-link').forEach(el => el.classList.remove('d-none'));
     row.querySelectorAll('.material-edit-inputs').forEach(el => el.classList.add('d-none'));
+    const dueControls = row.querySelector('.due-controls');
+    if (dueControls) dueControls.classList.add('d-none');
     
     // Hide add material form
     const addForm = row.querySelector('.add-material-form');
@@ -373,12 +386,16 @@ function cancelEventEdit(button) {
 function saveEvent(button, eventIndex) {
     const row = button.closest('tr');
     
+    const dueValue = row.querySelector('.due-in-value')?.value.trim();
+    const dueUnit = row.querySelector('.due-in-unit')?.value;
     const eventData = {
         index: eventIndex,
         date: row.querySelector('.event-date-input').value,
         type: row.querySelector('.event-type-input').value,
         topic: row.querySelector('.event-topic-input').value,
-        materials: getCurrentEventMaterials(row)
+        materials: getCurrentEventMaterials(row),
+        due_in_value: dueValue,
+        due_in_unit: dueUnit
     };
     
     console.log('Saving event:', eventData);
@@ -403,6 +420,19 @@ function saveEvent(button, eventIndex) {
         console.error('Error:', error);
         alert('Error saving event');
     });
+}
+
+function toggleDueControls(row) {
+    const typeValue = row.querySelector('.event-type-input')?.value;
+    const dueControls = row.querySelector('.due-controls');
+    if (!dueControls) return;
+    if (typeValue === 'homework' || typeValue === 'project') {
+        dueControls.classList.remove('d-none');
+    } else {
+        dueControls.classList.add('d-none');
+        const dueValue = dueControls.querySelector('.due-in-value');
+        if (dueValue) dueValue.value = '';
+    }
 }
 
 function deleteEvent(eventIndex) {
@@ -589,6 +619,13 @@ function uploadFile() {
 
 document.addEventListener('DOMContentLoaded', function() {
     loadUploadedFiles();
+
+    document.querySelectorAll('.event-type-input').forEach(select => {
+        select.addEventListener('change', function() {
+            const row = this.closest('tr');
+            if (row) toggleDueControls(row);
+        });
+    });
 });
 </script>
 {% endblock %}

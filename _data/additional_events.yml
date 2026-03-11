@@ -5,6 +5,9 @@ additional_events:
   materials:
   - name: Project 1 Description
     url: https://github.com/xieyaxiongfly/CSE589_ProgrammingAssignment/tree/main/A1_socket
+  group_id: 3c1826d5518045189459afacc122508e
+  due_in_value: '4'
+  due_in_unit: weeks
 - date: '2026-02-03'
   type: homework
   topic: Homework 1
@@ -18,17 +21,24 @@ additional_events:
 - date: '2026-02-17'
   type: homework
   topic: Homework 2
-  materials: []
-- date: '2026-02-19'
-  type: project_due
-  topic: PA1 Message Exchanging Due
-  materials: []
+  materials:
+  - name: CSE589_Network_HomeWork_SP26_HW2.pdf
+    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/CSE589_Network_HomeWork_SP26_HW2.pdf
 - date: '2026-02-26'
   type: project
   topic: PA2 Reliable Transmission
   materials:
   - name: Project 2 Description
     url: https://github.com/xieyaxiongfly/CSE589_ProgrammingAssignment/tree/main/A2_reliable
+  group_id: 111d7ab7ea0b4680a73e998d62dbc9b6
+  due_in_value: '5'
+  due_in_unit: weeks
+- date: '2026-02-26'
+  type: project_due
+  topic: PA1 Message Exchanging Due
+  materials: []
+  group_id: 3c1826d5518045189459afacc122508e
+  auto_due: true
 - date: '2026-03-03'
   type: homework_due
   topic: Homework 2 Due
@@ -41,14 +51,16 @@ additional_events:
   type: homework_due
   topic: Homework 3 Due
   materials: []
-- date: '2026-03-26'
-  type: project_due
-  topic: Reliable Transmission Due
-  materials: []
 - date: '2026-04-02'
   type: homework
   topic: Homework 4
   materials: []
+- date: '2026-04-02'
+  type: project_due
+  topic: PA2 Reliable Transmission Due
+  materials: []
+  group_id: 111d7ab7ea0b4680a73e998d62dbc9b6
+  auto_due: true
 - date: '2026-04-16'
   type: homework_due
   topic: Homework 4 Due
