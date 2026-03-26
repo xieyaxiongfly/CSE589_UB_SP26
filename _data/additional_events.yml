@@ -46,7 +46,9 @@ additional_events:
 - date: '2026-03-26'
   type: homework
   topic: Homework 3
-  materials: []
+  materials:
+  - name: CSE589_Network_HomeWork_SP26_HW2.pdf
+    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/20260326_114034_CSE589_Network_HomeWork_SP26_HW3.pdf
   due_in_value: '2'
   due_in_unit: weeks
   group_id: cdc75f4f088741aaa0be7fca1051f2a9
