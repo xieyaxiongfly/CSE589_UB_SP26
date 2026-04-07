@@ -40,3 +40,11 @@ assignments:
     retransmissions, timeouts, and clean connection termination to complete transfers
     correctly under adverse network conditions. An emulator is provided to simulate
     network behaviors such as packet loss, delay, and reordering during validation.
+- title: Routing Protocols
+  link: https://github.com/xieyaxiongfly/CSE589_ProgrammingAssignment/tree/main/A3_routing
+  description: This project implements the Distance Vector routing protocol based
+    on the Bellman-Ford algorithm, along with an enhanced variant using Split Horizon
+    to mitigate the count-to-infinity problem. It evaluates the correctness of routing
+    table convergence under various network conditions, including link additions,
+    deletions, and cost changes, as well as adversarial scenarios such as topology
+    partitioning and routing loops.
