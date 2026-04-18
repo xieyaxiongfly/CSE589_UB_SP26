@@ -4,8 +4,6 @@ import os
 from datetime import datetime, timedelta
 from uuid import uuid4
 from functools import wraps
-import hashlib
-from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change this in production
@@ -161,6 +159,197 @@ def allowed_file(filename):
 def allowed_image_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+def validate_material_filename(filename):
+    if not filename:
+        return None, 'No filename provided'
+
+    cleaned = filename.strip()
+    if not cleaned:
+        return None, 'No filename provided'
+
+    if cleaned in {'.', '..'}:
+        return None, 'Invalid filename'
+
+    if '/' in cleaned or '\\' in cleaned:
+        return None, 'Filename cannot include path separators'
+
+    if not allowed_file(cleaned):
+        return None, 'Invalid file type'
+
+    return cleaned, None
+
+def get_material_relative_path(filename):
+    return f'/static_files/uploads/{filename}'
+
+def get_material_absolute_path(filename):
+    return os.path.join(UPLOAD_DIR, filename)
+
+def get_material_public_url(filename):
+    return build_public_url(get_material_relative_path(filename))
+
+def iter_material_references(container):
+    if not container:
+        return
+    for item in container:
+        for material in item.get('materials', []) or []:
+            url = material.get('url')
+            if url:
+                yield material, url
+
+def get_material_url_variants(filename):
+    relative_path = get_material_relative_path(filename)
+    public_url = build_public_url(relative_path)
+    public_root = get_public_root().rstrip('/')
+
+    variants = {relative_path, public_url}
+    if public_root:
+        variants.add(f"{public_root}{relative_path}")
+    return {variant for variant in variants if variant}
+
+def build_material_usage_index():
+    usage_index = {}
+    schedule_data = load_yaml_file('course_schedule.yml')
+    for lecture_idx, lecture in enumerate(build_lecture_sequence(schedule_data)):
+        lecture_label = lecture.get('topic', f'Lecture {lecture_idx + 1}')
+        grouped = {}
+        for material in lecture.get('materials', []) or []:
+            normalized = normalize_material_url(material.get('url', ''))
+            if not normalized:
+                continue
+            grouped[normalized] = grouped.get(normalized, 0) + 1
+        for normalized, count in grouped.items():
+            items = usage_index.setdefault(normalized, [])
+            items.append({
+                'type': 'lecture',
+                'label': lecture_label,
+                'count': count
+            })
+
+    additional_events_data = load_yaml_file('additional_events.yml')
+    for event in additional_events_data.get('additional_events', []) or []:
+        event_label = event.get('topic', 'Untitled Event')
+        grouped = {}
+        for material in event.get('materials', []) or []:
+            normalized = normalize_material_url(material.get('url', ''))
+            if not normalized:
+                continue
+            grouped[normalized] = grouped.get(normalized, 0) + 1
+        for normalized, count in grouped.items():
+            items = usage_index.setdefault(normalized, [])
+            items.append({
+                'type': 'event',
+                'label': event_label,
+                'count': count
+            })
+
+    return usage_index
+
+def find_material_usages(filename, usage_index=None):
+    variants = get_material_url_variants(filename)
+    if usage_index is None:
+        usage_index = build_material_usage_index()
+
+    usages = []
+    for variant in variants:
+        usages.extend(usage_index.get(variant, []))
+    return usages
+
+def replace_material_references(old_filename, new_filename):
+    old_variants = get_material_url_variants(old_filename)
+    new_url = get_material_public_url(new_filename)
+    updated = 0
+
+    schedule_data = load_yaml_file('course_schedule.yml')
+    sequence = build_lecture_sequence(schedule_data)
+    changed = False
+    for lecture in sequence:
+        for material in lecture.get('materials', []) or []:
+            if normalize_material_url(material.get('url', '')) in old_variants:
+                material['url'] = new_url
+                updated += 1
+                changed = True
+    if changed:
+        schedule_data['lecture_sequence'] = sequence
+        save_yaml_file('course_schedule.yml', schedule_data)
+
+    additional_events_data = load_yaml_file('additional_events.yml')
+    changed = False
+    for event in additional_events_data.get('additional_events', []) or []:
+        for material in event.get('materials', []) or []:
+            if normalize_material_url(material.get('url', '')) in old_variants:
+                material['url'] = new_url
+                updated += 1
+                changed = True
+    if changed:
+        save_yaml_file('additional_events.yml', additional_events_data)
+
+    return updated
+
+def remove_material_references(filename):
+    variants = get_material_url_variants(filename)
+    removed = 0
+
+    schedule_data = load_yaml_file('course_schedule.yml')
+    sequence = build_lecture_sequence(schedule_data)
+    changed = False
+    for lecture in sequence:
+        materials = lecture.get('materials', []) or []
+        filtered = []
+        for material in materials:
+            if normalize_material_url(material.get('url', '')) in variants:
+                removed += 1
+                changed = True
+            else:
+                filtered.append(material)
+        lecture['materials'] = filtered
+    if changed:
+        schedule_data['lecture_sequence'] = sequence
+        save_yaml_file('course_schedule.yml', schedule_data)
+
+    additional_events_data = load_yaml_file('additional_events.yml')
+    changed = False
+    for event in additional_events_data.get('additional_events', []) or []:
+        materials = event.get('materials', []) or []
+        filtered = []
+        for material in materials:
+            if normalize_material_url(material.get('url', '')) in variants:
+                removed += 1
+                changed = True
+            else:
+                filtered.append(material)
+        event['materials'] = filtered
+    if changed:
+        save_yaml_file('additional_events.yml', additional_events_data)
+
+    return removed
+
+def collect_uploaded_files():
+    files = []
+    if not os.path.exists(UPLOAD_DIR):
+        return files
+
+    usage_index = build_material_usage_index()
+
+    for filename in os.listdir(UPLOAD_DIR):
+        file_path = get_material_absolute_path(filename)
+        if not os.path.isfile(file_path) or not allowed_file(filename):
+            continue
+
+        stat = os.stat(file_path)
+        usages = find_material_usages(filename, usage_index=usage_index)
+        files.append({
+            'name': filename,
+            'path': get_material_relative_path(filename),
+            'url': get_material_public_url(filename),
+            'size': stat.st_size,
+            'modified_at': datetime.fromtimestamp(stat.st_mtime).isoformat(timespec='seconds'),
+            'usage_count': sum(item['count'] for item in usages),
+            'usages': usages
+        })
+
+    files.sort(key=lambda item: item['modified_at'], reverse=True)
+    return files
 
 @app.route('/')
 @require_auth
@@ -349,6 +538,16 @@ def move_home_module():
 def materials():
     textbooks_data = load_textbooks()
     return render_template('materials.html', textbooks=textbooks_data.get('textbooks', []))
+
+@app.route('/material-library')
+@require_auth
+def material_library():
+    return render_template(
+        'material_library.html',
+        uploaded_files=collect_uploaded_files(),
+        public_base=get_public_base(),
+        public_root=get_public_root()
+    )
 
 @app.route('/assignments')
 @require_auth
@@ -1018,54 +1217,100 @@ def move_lecture():
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'success': False, 'message': 'No file selected'})
-    
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({'success': False, 'message': 'No file selected'})
-    
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # Add timestamp to avoid conflicts
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
-        filename = timestamp + filename
-        
-        # Ensure upload directory exists
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
-        
-        file_path = os.path.join(UPLOAD_DIR, filename)
-        file.save(file_path)
-        
-        # Return relative path for use in materials
-        relative_path = f'/static_files/uploads/{filename}'
-        public_url = build_public_url(relative_path)
-        
+
+    requested_name = request.form.get('new_name', '').strip() or file.filename
+    filename, error = validate_material_filename(requested_name)
+    if error:
+        return jsonify({'success': False, 'message': error})
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    overwrite = request.form.get('overwrite', '').lower() == 'true'
+    file_path = get_material_absolute_path(filename)
+    exists = os.path.exists(file_path)
+
+    if exists and not overwrite:
         return jsonify({
-            'success': True, 
-            'message': 'File uploaded successfully',
-            'file_path': relative_path,
-            'file_url': public_url,
-            'filename': filename
-        })
-    
-    return jsonify({'success': False, 'message': 'Invalid file type'})
+            'success': False,
+            'conflict': True,
+            'message': f'"{filename}" already exists. Confirm overwrite to replace it.',
+            'existing_file': {
+                'name': filename,
+                'path': get_material_relative_path(filename),
+                'url': get_material_public_url(filename),
+                'usages': find_material_usages(filename)
+            }
+        }), 409
+
+    file.save(file_path)
+
+    return jsonify({
+        'success': True,
+        'message': 'File uploaded successfully' if not exists else 'File overwritten successfully',
+        'file': {
+            'name': filename,
+            'path': get_material_relative_path(filename),
+            'url': get_material_public_url(filename)
+        }
+    })
 
 @app.route('/get_uploaded_files')
 @require_auth
 def get_uploaded_files():
-    files = []
-    if os.path.exists(UPLOAD_DIR):
-        for filename in os.listdir(UPLOAD_DIR):
-            if allowed_file(filename):
-                relative_path = f'/static_files/uploads/{filename}'
-                files.append({
-                    'name': filename,
-                    'path': relative_path,
-                    'url': build_public_url(relative_path)
-                })
-    
-    # Sort by newest filename prefix (timestamp) first
-    files.sort(key=lambda x: x['name'], reverse=True)
-    return jsonify({'files': files})
+    return jsonify({'files': collect_uploaded_files()})
+
+@app.route('/rename_file', methods=['POST'])
+@require_auth
+def rename_file():
+    data = request.get_json() or {}
+    current_name, error = validate_material_filename(data.get('current_name', ''))
+    if error:
+        return jsonify({'success': False, 'message': error})
+
+    new_name, error = validate_material_filename(data.get('new_name', ''))
+    if error:
+        return jsonify({'success': False, 'message': error})
+
+    current_path = get_material_absolute_path(current_name)
+    new_path = get_material_absolute_path(new_name)
+
+    if not os.path.exists(current_path):
+        return jsonify({'success': False, 'message': 'File not found'})
+
+    if current_name == new_name:
+        return jsonify({'success': True, 'message': 'Filename unchanged'})
+
+    overwrite = bool(data.get('overwrite'))
+    if os.path.exists(new_path):
+        if not overwrite:
+            return jsonify({
+                'success': False,
+                'conflict': True,
+                'message': f'"{new_name}" already exists. Confirm overwrite to replace it.',
+                'existing_file': {
+                    'name': new_name,
+                    'path': get_material_relative_path(new_name),
+                    'url': get_material_public_url(new_name),
+                    'usages': find_material_usages(new_name)
+                }
+            }), 409
+        os.remove(new_path)
+
+    os.rename(current_path, new_path)
+    updated_references = replace_material_references(current_name, new_name)
+
+    return jsonify({
+        'success': True,
+        'message': (
+            f'Renamed file and updated {updated_references} linked material reference(s)'
+            if not overwrite else
+            f'Renamed file with overwrite and updated {updated_references} linked material reference(s)'
+        ),
+        'updated_references': updated_references
+    })
 
 @app.route('/edit_lecture', methods=['POST'])
 @require_auth
@@ -1119,24 +1364,30 @@ def delete_material():
 @app.route('/delete_file', methods=['POST'])
 @require_auth
 def delete_file():
-    data = request.get_json()
-    filename = data.get('filename')
-    
-    if not filename:
-        return jsonify({'success': False, 'message': 'No filename provided'})
-    
-    # Security check - only allow deletion of files in uploads directory
-    if not filename.startswith('/static_files/uploads/'):
-        return jsonify({'success': False, 'message': 'Invalid file path'})
-    
-    # Extract actual filename
-    actual_filename = filename.replace('/static_files/uploads/', '')
-    file_path = os.path.join(UPLOAD_DIR, actual_filename)
-    
+    data = request.get_json() or {}
+    filename = data.get('filename') or data.get('name')
+
+    if filename and filename.startswith('/static_files/uploads/'):
+        filename = filename.replace('/static_files/uploads/', '')
+
+    filename, error = validate_material_filename(filename)
+    if error:
+        return jsonify({'success': False, 'message': error})
+
+    file_path = get_material_absolute_path(filename)
+    usages = find_material_usages(filename)
     try:
         if os.path.exists(file_path):
             os.remove(file_path)
-            return jsonify({'success': True, 'message': 'File deleted successfully'})
+            removed_references = remove_material_references(filename)
+            return jsonify({
+                'success': True,
+                'message': f'File deleted successfully and removed {removed_references} linked material reference(s)',
+                'deleted_name': filename,
+                'usage_count': sum(item['count'] for item in usages),
+                'usages': usages,
+                'removed_references': removed_references
+            })
         else:
             return jsonify({'success': False, 'message': 'File not found'})
     except Exception as e:

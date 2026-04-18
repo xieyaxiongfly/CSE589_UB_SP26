@@ -125,8 +125,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ url_for('material_library') }}" class="nav-link {% if request.endpoint == 'material_library' %}active{% endif %}">
+                                <i class="fas fa-folder-open me-2"></i>Material Library
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ url_for('materials') }}" class="nav-link {% if request.endpoint == 'materials' %}active{% endif %}">
-                                <i class="fas fa-book me-2"></i>Materials
+                                <i class="fas fa-book me-2"></i>Textbooks
                             </a>
                         </li>
                         <li class="nav-item">

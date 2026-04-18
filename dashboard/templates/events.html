@@ -3,10 +3,53 @@
 {% block title %}Events & Deadlines - Course Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    .event-materials-display {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 240px;
+    }
+    .material-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid #e5e5e5;
+        border-radius: 10px;
+        background: #ffffff;
+    }
+    .material-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #111111;
+        font-weight: 600;
+    }
+    .material-link:hover {
+        color: #111111;
+        text-decoration: underline;
+    }
+    .event-material-empty {
+        border: 1px dashed #d4d4d4;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #777777;
+        background: #fcfcfc;
+        font-size: 13px;
+    }
+    .add-material-toggle-btn {
+        align-self: flex-start;
+    }
+</style>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Events & Deadlines</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
+            <a href="{{ url_for('material_library') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-folder-open me-2"></i>Material Library
+            </a>
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
                 <i class="fas fa-plus me-2"></i>Add Event
             </button>
@@ -121,10 +164,13 @@
                         </td>
                         <td>
                             <div class="event-materials-display">
+                                {% if not event.materials %}
+                                <div class="event-material-empty">No materials linked.</div>
+                                {% endif %}
                                 {% for material in event.materials %}
                                 <div class="material-item mb-2">
                                     <a href="{{ material.url }}" target="_blank" class="text-decoration-none material-link">
-                                        <i class="fas fa-file-alt me-1"></i>{{ material.name }}
+                                        <i class="fas fa-file-lines"></i><span>{{ material.name }}</span>
                                     </a>
                                     <div class="material-edit-inputs d-none mt-1">
                                         <div class="input-group input-group-sm">
@@ -242,22 +288,6 @@
                         <select class="form-select mt-2" id="event_material_file_select">
                             <option value="">Choose uploaded file</option>
                         </select>
-                        <div class="form-text">
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="showFileUploader()">
-                                <i class="fas fa-upload me-1"></i>Upload File
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- File Upload Section -->
-                    <div id="fileUploadSection" class="d-none">
-                        <div class="mb-3">
-                            <label for="fileUpload" class="form-label">Upload File</label>
-                            <input type="file" class="form-control" id="fileUpload" accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.jpg,.png,.gif">
-                            <div class="form-text">Allowed: PDF, PPT, DOC, TXT, Images</div>
-                        </div>
-                        <button type="button" class="btn btn-primary" onclick="uploadFile()">Upload</button>
-                        <button type="button" class="btn btn-secondary" onclick="hideFileUploader()">Cancel</button>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -569,52 +599,6 @@ function deleteEventMaterial(materialIndex, eventIndex) {
             alert('Error deleting material');
         });
     }
-}
-
-// File upload functions
-function showFileUploader() {
-    document.getElementById('fileUploadSection').classList.remove('d-none');
-}
-
-function hideFileUploader() {
-    document.getElementById('fileUploadSection').classList.add('d-none');
-    document.getElementById('fileUpload').value = '';
-}
-
-function uploadFile() {
-    const fileInput = document.getElementById('fileUpload');
-    const file = fileInput.files[0];
-    
-    if (!file) {
-        alert('Please select a file');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    fetch('/upload_file', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('event_material_url').value = makePublicUrl(data.file_url || data.file_path);
-            if (!document.getElementById('event_material_name').value) {
-                document.getElementById('event_material_name').value = data.filename;
-            }
-            hideFileUploader();
-            alert('File uploaded successfully!');
-            loadUploadedFiles();
-        } else {
-            alert('Upload failed: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Upload failed');
-    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -1,0 +1,767 @@
+{% extends "base.html" %}
+
+{% block title %}Material Library{% endblock %}
+
+{% block content %}
+<style>
+    .library-hero {
+        background: linear-gradient(135deg, #111111 0%, #2a2a2a 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .library-stat {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 16px;
+        height: 100%;
+    }
+    .library-stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.75;
+    }
+    .library-stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.1;
+        margin-top: 4px;
+    }
+    .library-upload-card {
+        border-radius: 12px;
+    }
+    .library-toolbar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+    .library-controls {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .library-search {
+        max-width: 320px;
+    }
+    .library-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
+    }
+    .library-file-card {
+        border: 1px solid #e5e5e5;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-height: 260px;
+    }
+    .library-file-card:hover {
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+    }
+    .library-file-name {
+        font-weight: 700;
+        font-size: 16px;
+        word-break: break-word;
+    }
+    .library-file-meta {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 6px;
+    }
+    .library-card-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    .library-file-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #111111;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .library-card-section {
+        border-top: 1px solid #eeeeee;
+        padding-top: 12px;
+    }
+    .section-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #777777;
+        margin-bottom: 8px;
+    }
+    .usage-pill {
+        display: inline-block;
+        font-size: 12px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #efefef;
+        margin: 0 6px 6px 0;
+    }
+    .usage-list {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 8px;
+        max-width: 260px;
+    }
+    .rename-panel {
+        margin-top: 2px;
+    }
+    .library-empty {
+        text-align: center;
+        padding: 48px 24px;
+        color: #666666;
+    }
+    .link-cell {
+        word-break: break-all;
+        font-size: 12px;
+    }
+    .card-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .replace-input {
+        display: none;
+    }
+    .sticky-feedback {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    @media (max-width: 768px) {
+        .library-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .library-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .library-search {
+            max-width: none;
+        }
+    }
+</style>
+
+<div id="library-feedback" class="sticky-feedback"></div>
+
+<div class="library-hero">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <h1 class="h2 mb-2">Material Library</h1>
+            <p class="mb-0 text-white-50">
+                Upload once, then reuse the same file across lectures and events. Renaming updates links automatically. Deleting a file also removes linked material references.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('schedule') }}" class="btn btn-light btn-sm">Schedule</a>
+            <a href="{{ url_for('events') }}" class="btn btn-outline-light btn-sm">Events</a>
+        </div>
+    </div>
+
+    <div class="row mt-4 g-3">
+        <div class="col-md-3 col-6">
+            <div class="library-stat">
+                <div class="library-stat-label">Files</div>
+                <div class="library-stat-value" id="stat-files">{{ uploaded_files|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="library-stat">
+                <div class="library-stat-label">Linked References</div>
+                <div class="library-stat-value" id="stat-links">{{ uploaded_files|sum(attribute='usage_count') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="library-stat">
+                <div class="library-stat-label">Unused Files</div>
+                <div class="library-stat-value" id="stat-unused">{{ uploaded_files|selectattr('usage_count', 'equalto', 0)|list|length }}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="library-stat">
+                <div class="library-stat-label">Newest Update</div>
+                <div class="library-stat-value" style="font-size: 18px;" id="stat-latest">
+                    {% if uploaded_files %}{{ uploaded_files[0].modified_at }}{% else %}-{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card library-upload-card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Upload New File</h5>
+    </div>
+    <div class="card-body">
+        <form id="library-upload-form">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-5">
+                    <label for="library-file-input" class="form-label">Choose File</label>
+                    <input type="file" class="form-control" id="library-file-input" name="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif" required>
+                </div>
+                <div class="col-lg-5">
+                    <label for="library-file-name" class="form-label">Optional New Name</label>
+                    <input type="text" class="form-control" id="library-file-name" name="new_name" placeholder="Keep blank to preserve the original filename">
+                    <div class="form-text">The system will not rename files automatically. If the target name already exists, you can choose whether to overwrite it.</div>
+                </div>
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-primary w-100">Upload</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="library-toolbar">
+            <div>
+                <h5 class="mb-1">Uploaded Files</h5>
+                <div class="text-muted small">Manage names, copy links, inspect usage, and clean up old files.</div>
+            </div>
+            <div class="library-controls">
+                <input type="search" class="form-control library-search" id="library-search-input" placeholder="Search by filename or linked lecture/event">
+                <select class="form-select" id="library-filter-select" style="width: 180px;">
+                    <option value="all">All files</option>
+                    <option value="used">Used files only</option>
+                    <option value="unused">Unused files only</option>
+                </select>
+                <select class="form-select" id="library-sort-select" style="width: 220px;">
+                    <option value="newest">Add Order: Newest First</option>
+                    <option value="oldest">Add Order: Oldest First</option>
+                    <option value="name_asc">Filename: A to Z</option>
+                    <option value="name_desc">Filename: Z to A</option>
+                </select>
+                <button type="button" class="btn btn-outline-secondary" id="refresh-library-btn">Refresh</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="library-files-body" class="library-grid">
+            {% for file in uploaded_files %}
+            <div class="library-file-card" data-file-name="{{ file.name }}">
+                <div class="library-card-top">
+                    <div class="flex-grow-1">
+                        <div class="file-name-display">
+                            <div class="library-file-name">{{ file.name }}</div>
+                            <div class="library-file-meta">{{ file.size }} bytes</div>
+                        </div>
+                        <div class="rename-panel file-name-edit d-none">
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control rename-input" value="{{ file.name }}">
+                                <button type="button" class="btn btn-outline-success save-rename-btn">Save</button>
+                                <button type="button" class="btn btn-outline-secondary cancel-rename-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="library-file-icon">
+                        <i class="fas fa-file-lines"></i>
+                    </div>
+                </div>
+
+                <div class="library-card-section">
+                    <div class="section-label">Usage</div>
+                    {% if file.usage_count %}
+                        <div><strong>{{ file.usage_count }}</strong> linked reference(s)</div>
+                        <div class="mt-2">
+                            {% for usage in file.usages %}
+                            <span class="usage-pill">{{ usage.type }} · {{ usage.count }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="usage-list">
+                            {% for usage in file.usages %}
+                            <div>{{ usage.label }}</div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <span class="text-muted">Unused</span>
+                    {% endif %}
+                </div>
+
+                <div class="library-card-section">
+                    <div class="section-label">Link</div>
+                    <div class="link-cell">
+                        <a href="{{ file.url }}" target="_blank">{{ file.url }}</a>
+                    </div>
+                </div>
+
+                <div class="library-card-section">
+                    <div class="section-label">Updated</div>
+                    <div>{{ file.modified_at }}</div>
+                </div>
+
+                <div class="card-actions mt-auto">
+                    <button type="button" class="btn btn-outline-dark btn-sm replace-btn">Replace</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm copy-link-btn" data-url="{{ file.url }}">Copy Link</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm rename-btn">Rename</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm delete-file-btn">Delete</button>
+                </div>
+                <input type="file" class="replace-input" accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif">
+            </div>
+            {% endfor %}
+        </div>
+        <div id="library-empty-state" class="library-empty d-none">
+            <div class="mb-2"><strong>No files match the current filter.</strong></div>
+            <div>Try a different search keyword or switch the usage filter.</div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let libraryFiles = {{ uploaded_files|tojson }};
+let filteredFiles = [...libraryFiles];
+
+const libraryBody = document.getElementById('library-files-body');
+const libraryFileInput = document.getElementById('library-file-input');
+const libraryFileNameInput = document.getElementById('library-file-name');
+const searchInput = document.getElementById('library-search-input');
+const filterSelect = document.getElementById('library-filter-select');
+const sortSelect = document.getElementById('library-sort-select');
+const emptyState = document.getElementById('library-empty-state');
+const feedbackContainer = document.getElementById('library-feedback');
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatBytes(bytes) {
+    const size = Number(bytes) || 0;
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+    if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+    return `${(size / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
+function showFeedback(message, level = 'success') {
+    feedbackContainer.innerHTML = `
+        <div class="alert alert-${level === 'error' ? 'danger' : level} alert-dismissible fade show mb-3" role="alert">
+            ${escapeHtml(message)}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+
+function buildUsageSummary(usages) {
+    const items = usages || [];
+    if (!items.length) {
+        return 'No lecture or event links currently reference this file.';
+    }
+    return items.map(item => `${item.type}: ${item.label} (${item.count})`).join('\n');
+}
+
+function updateStats(files) {
+    document.getElementById('stat-files').textContent = files.length;
+    document.getElementById('stat-links').textContent = files.reduce((sum, file) => sum + (file.usage_count || 0), 0);
+    document.getElementById('stat-unused').textContent = files.filter(file => !file.usage_count).length;
+    document.getElementById('stat-latest').textContent = files.length ? files[0].modified_at : '-';
+}
+
+function buildUsageHtml(file) {
+    if (!file.usage_count) {
+        return '<span class="text-muted">Unused</span>';
+    }
+
+    const pills = (file.usages || []).map(usage => `
+        <span class="usage-pill">${escapeHtml(usage.type)} · ${usage.count}</span>
+    `).join('');
+
+    const details = (file.usages || []).map(usage => `
+        <div>${escapeHtml(usage.label)}</div>
+    `).join('');
+
+    return `
+        <div><strong>${file.usage_count}</strong> linked reference(s)</div>
+        <div class="mt-2">${pills}</div>
+        <div class="usage-list">${details}</div>
+    `;
+}
+
+function renderLibraryRows(files) {
+    if (!files.length) {
+        libraryBody.innerHTML = '';
+        emptyState.classList.remove('d-none');
+        return;
+    }
+
+    emptyState.classList.add('d-none');
+    libraryBody.innerHTML = files.map(file => `
+        <div class="library-file-card" data-file-name="${escapeHtml(file.name)}">
+            <div class="library-card-top">
+                <div class="flex-grow-1">
+                    <div class="file-name-display">
+                        <div class="library-file-name">${escapeHtml(file.name)}</div>
+                        <div class="library-file-meta">${formatBytes(file.size)}</div>
+                    </div>
+                    <div class="rename-panel file-name-edit d-none">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control rename-input" value="${escapeHtml(file.name)}">
+                            <button type="button" class="btn btn-outline-success save-rename-btn">Save</button>
+                            <button type="button" class="btn btn-outline-secondary cancel-rename-btn">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="library-file-icon">
+                    <i class="fas fa-file-lines"></i>
+                </div>
+            </div>
+
+            <div class="library-card-section">
+                <div class="section-label">Usage</div>
+                ${buildUsageHtml(file)}
+            </div>
+
+            <div class="library-card-section">
+                <div class="section-label">Link</div>
+                <div class="link-cell">
+                    <a href="${escapeHtml(file.url)}" target="_blank">${escapeHtml(file.url)}</a>
+                </div>
+            </div>
+
+            <div class="library-card-section">
+                <div class="section-label">Updated</div>
+                <div>${escapeHtml(file.modified_at)}</div>
+            </div>
+
+            <div class="card-actions mt-auto">
+                <button type="button" class="btn btn-outline-dark btn-sm replace-btn">Replace</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm copy-link-btn" data-url="${escapeHtml(file.url)}">Copy Link</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rename-btn">Rename</button>
+                <button type="button" class="btn btn-outline-danger btn-sm delete-file-btn">Delete</button>
+            </div>
+            <input type="file" class="replace-input" accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif">
+        </div>
+    `).join('');
+}
+
+function sortFiles(files) {
+    const mode = sortSelect.value;
+    const sorted = [...files];
+
+    if (mode === 'name_asc') {
+        sorted.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    } else if (mode === 'name_desc') {
+        sorted.sort((a, b) => b.name.localeCompare(a.name, undefined, { sensitivity: 'base' }));
+    } else if (mode === 'oldest') {
+        sorted.sort((a, b) => new Date(a.modified_at) - new Date(b.modified_at));
+    } else {
+        sorted.sort((a, b) => new Date(b.modified_at) - new Date(a.modified_at));
+    }
+
+    return sorted;
+}
+
+function applyFilters() {
+    const keyword = searchInput.value.trim().toLowerCase();
+    const mode = filterSelect.value;
+
+    filteredFiles = libraryFiles.filter(file => {
+        const matchesKeyword = !keyword || [
+            file.name,
+            ...(file.usages || []).map(usage => usage.label || ''),
+            ...(file.usages || []).map(usage => usage.type || '')
+        ].join(' ').toLowerCase().includes(keyword);
+
+        const matchesMode =
+            mode === 'all' ||
+            (mode === 'used' && file.usage_count > 0) ||
+            (mode === 'unused' && file.usage_count === 0);
+
+        return matchesKeyword && matchesMode;
+    });
+
+    filteredFiles = sortFiles(filteredFiles);
+    renderLibraryRows(filteredFiles);
+    updateStats(filteredFiles);
+}
+
+function setRenameMode(row, enabled) {
+    const display = row.querySelector('.file-name-display');
+    const edit = row.querySelector('.file-name-edit');
+    if (display) {
+        display.classList.toggle('d-none', enabled);
+    }
+    if (edit) {
+        edit.classList.toggle('d-none', !enabled);
+    }
+}
+
+function loadLibraryFiles(showMessage = false) {
+    fetch('{{ url_for("get_uploaded_files") }}')
+        .then(response => response.json())
+        .then(data => {
+            libraryFiles = data.files || [];
+            applyFilters();
+            if (showMessage) {
+                showFeedback('Material library refreshed.');
+            }
+        })
+        .catch(() => {
+            showFeedback('Failed to load uploaded files.', 'error');
+        });
+}
+
+document.getElementById('library-upload-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const file = libraryFileInput.files[0];
+    if (!file) {
+        showFeedback('Please choose a file to upload.', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    if (libraryFileNameInput.value.trim()) {
+        formData.append('new_name', libraryFileNameInput.value.trim());
+    }
+
+    fetch('{{ url_for("upload_file") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (response.status === 409 && data.conflict) {
+            const existingUsages = (data.existing_file && data.existing_file.usages) ? data.existing_file.usages : [];
+            const usageSummary = existingUsages.map(item => `${item.type}: ${item.label}`).join('\n');
+            const confirmed = confirm(
+                `${data.message}` + (usageSummary ? `\n\nCurrent usage:\n${usageSummary}` : '') + '\n\nOverwrite this file?'
+            );
+            if (!confirmed) {
+                return null;
+            }
+
+            formData.set('overwrite', 'true');
+            const overwriteResponse = await fetch('{{ url_for("upload_file") }}', {
+                method: 'POST',
+                body: formData
+            });
+            return overwriteResponse.json();
+        }
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Upload failed');
+        }
+        return data;
+    })
+    .then(data => {
+        if (!data) return;
+        if (!data.success) {
+            throw new Error(data.message || 'Upload failed');
+        }
+        libraryFileInput.value = '';
+        libraryFileNameInput.value = '';
+        showFeedback(data.message);
+        loadLibraryFiles();
+    })
+    .catch(error => {
+        showFeedback(error.message || 'Upload failed', 'error');
+    });
+});
+
+document.getElementById('refresh-library-btn').addEventListener('click', function() {
+    loadLibraryFiles(true);
+});
+
+searchInput.addEventListener('input', applyFilters);
+filterSelect.addEventListener('change', applyFilters);
+sortSelect.addEventListener('change', applyFilters);
+
+libraryBody.addEventListener('click', function(e) {
+    const row = e.target.closest('[data-file-name]');
+    if (!row) return;
+
+    const currentName = row.dataset.fileName;
+
+    if (e.target.classList.contains('replace-btn')) {
+        const replaceInput = row.querySelector('.replace-input');
+        if (replaceInput) {
+            replaceInput.click();
+        }
+        return;
+    }
+
+    if (e.target.classList.contains('copy-link-btn')) {
+        navigator.clipboard.writeText(e.target.dataset.url)
+            .then(() => showFeedback('Link copied to clipboard.'))
+            .catch(() => showFeedback('Failed to copy link.', 'error'));
+        return;
+    }
+
+    if (e.target.classList.contains('rename-btn')) {
+        setRenameMode(row, true);
+        return;
+    }
+
+    if (e.target.classList.contains('cancel-rename-btn')) {
+        row.querySelector('.rename-input').value = currentName;
+        setRenameMode(row, false);
+        return;
+    }
+
+    if (e.target.classList.contains('save-rename-btn')) {
+        const newName = row.querySelector('.rename-input').value.trim();
+        const currentFile = libraryFiles.find(item => item.name === currentName);
+        const currentUsageSummary = buildUsageSummary(currentFile ? currentFile.usages : []);
+
+        const proceed = confirm(
+            `Rename "${currentName}" to "${newName}"?\n\nAffected links that will be updated automatically:\n${currentUsageSummary}`
+        );
+        if (!proceed) {
+            return;
+        }
+
+        const payload = {
+            current_name: currentName,
+            new_name: newName
+        };
+
+        fetch('{{ url_for("rename_file") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (response.status === 409 && data.conflict) {
+                const existingUsages = (data.existing_file && data.existing_file.usages) ? data.existing_file.usages : [];
+                const usageSummary = buildUsageSummary(existingUsages);
+                const confirmed = confirm(
+                    `${data.message}\n\nExisting target file usage:\n${usageSummary}\n\nOverwrite this file?`
+                );
+                if (!confirmed) {
+                    return null;
+                }
+
+                payload.overwrite = true;
+                const overwriteResponse = await fetch('{{ url_for("rename_file") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                return overwriteResponse.json();
+            }
+            return data;
+        })
+        .then(data => {
+            if (!data) return;
+            if (!data.success) {
+                throw new Error(data.message || 'Rename failed');
+            }
+            showFeedback(data.message);
+            loadLibraryFiles();
+        })
+        .catch(error => {
+            showFeedback(error.message || 'Rename failed', 'error');
+        });
+        return;
+    }
+
+    if (e.target.classList.contains('delete-file-btn')) {
+        const file = libraryFiles.find(item => item.name === currentName);
+        const usages = file && file.usages ? file.usages : [];
+        const usageSummary = usages.map(item => `${item.type}: ${item.label}`).join('\n');
+        const confirmed = confirm(
+            `Delete "${currentName}"?` +
+            (usageSummary ? `\n\nThis file is currently used by:\n${usageSummary}` : '\n\nThis file is currently unused.') +
+            '\n\nThe linked material references will be removed automatically.'
+        );
+        if (!confirmed) return;
+
+        fetch('{{ url_for("delete_file") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: currentName
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message || 'Delete failed');
+            }
+            showFeedback(data.message);
+            loadLibraryFiles();
+        })
+        .catch(error => {
+            showFeedback(error.message || 'Delete failed', 'error');
+        });
+    }
+});
+
+libraryBody.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('replace-input')) return;
+
+    const row = e.target.closest('[data-file-name]');
+    const file = e.target.files && e.target.files[0];
+    if (!row || !file) return;
+
+    const currentName = row.dataset.fileName;
+    const confirmed = confirm(
+        `Replace "${currentName}" with "${file.name}"?\n\nThe existing filename and links will stay the same.`
+    );
+
+    if (!confirmed) {
+        e.target.value = '';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('new_name', currentName);
+    formData.append('overwrite', 'true');
+
+    fetch('{{ url_for("upload_file") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.message || 'Replace failed');
+        }
+        e.target.value = '';
+        showFeedback(`Replaced "${currentName}" successfully.`);
+        loadLibraryFiles();
+    })
+    .catch(error => {
+        e.target.value = '';
+        showFeedback(error.message || 'Replace failed', 'error');
+    });
+});
+
+applyFilters();
+</script>
+{% endblock %}

@@ -207,7 +207,9 @@ lecture_sequence:
   - name: Chapter_5_P3.pdf
     url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_5_P3.pdf
 - topic: 'Network Layer: Control Plane (part 4)'
-  materials: []
+  materials:
+  - name: Chapter_5_P4.pdf
+    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_5_P4.pdf
 - topic: Link Layer and LANs (part 1)
   materials:
   - name: Chapter_6_P1.pdf
