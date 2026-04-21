@@ -212,8 +212,8 @@ lecture_sequence:
     url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_5_P4.pdf
 - topic: Link Layer and LANs (part 1)
   materials:
-  - name: Chapter_6_P1.pdf
-    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_6_P1.pdf
+  - name: Chapter_6_S26_P1.pdf
+    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_6_S26_P1.pdf
 - topic: Link Layer and LANs (part 2)
   materials:
   - name: Chapter_6_P2.pdf
