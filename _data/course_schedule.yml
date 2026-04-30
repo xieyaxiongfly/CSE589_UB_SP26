@@ -113,14 +113,14 @@ lectures:
     materials: []
   thursday:
     topic: TBD
-    materials: &id001 []
+    materials: []
 - week: 16
   tuesday:
     topic: TBD
-    materials: &id002 []
+    materials: &id001 []
   thursday:
     topic: TBD
-    materials: &id003 []
+    materials: &id002 []
 lecture_sequence:
 - topic: Course Introduction
   materials:
@@ -224,9 +224,9 @@ lecture_sequence:
     url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_7_s26.pdf
 - topic: Final Exam Review
   materials: []
+- topic: No Class
+  materials: []
 - topic: TBD
   materials: *id001
 - topic: TBD
   materials: *id002
-- topic: TBD
-  materials: *id003
