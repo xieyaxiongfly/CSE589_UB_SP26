@@ -223,7 +223,9 @@ lecture_sequence:
   - name: Chapter_7_s26.pdf
     url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/Chapter_7_s26.pdf
 - topic: Final Exam Review
-  materials: []
+  materials:
+  - name: final-exam_overview_26.pdf
+    url: https://xieyaxiongfly.github.io/CSE589_UB_SP26/static_files/uploads/final-exam_overview_26.pdf
 - topic: No Class
   materials: []
 - topic: TBD
