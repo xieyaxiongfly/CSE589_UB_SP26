@@ -26,8 +26,8 @@ course_description: "This course introduces the principles and practice of compu
   \ and failures.\r\n\r\nDescribe foundational security mechanisms (TLS, certificates,\
   \ authentication) and recognize common network threats (e.g., spoofing, MITM, DoS)\
   \ and basic mitigations."
-course_semester: Spring 2026
-baseurl: /CSE589_UB_SP26
+course_semester: Fall 2026
+baseurl: /CSE589_fall_2026
 url: https://xieyaxiongfly.github.io
 schoolname: University at Buffalo, SUNY
 schoolurl: https://buffalo.edu

@@ -1,9 +1,9 @@
 modules:
 - type: markdown
   title: Course Information
-  body: "**Lecture Time:** Tuesday & Thursday, 5:00 PM - 6:20 PM  \r\n**Location:**\
-    \ Knox Hall, 110, North Campus  \r\n**Final Exam Time:** 5/7/2026, Thursday 7:15PM\
-    \ - 10:15PM  \r\n**Semester:** Spring 2026"
+  body: "**Lecture Time:** Tuesday & Thursday, 2:00 PM - 3:20 PM  \r\n**Location:**\
+    \ 97 Alumni Arena, North Campus  \r\n**Final Exam Time:** 12/10/2026, Thursday\
+    \ 2:00PM - 6:20PM  \r\n**Semester:** Fall 2026"
 - type: markdown
   title: Course Description
   body: "This course introduces the principles and practice of computer networking\
@@ -35,15 +35,15 @@ modules:
     \ spoofing, MITM, DoS) and basic mitigations."
 - type: markdown
   title: Grading
-  body: "- **Midterm:** 20%\r\n- **Final Exam:** 20%\r\n- **Course Project:** 50%\r\
-    \n- **Homework:** 10%"
+  body: "- **Midterm:** 30%\r\n- **Final Exam:** 30%\r\n- **Course Project:** 40%"
 - type: markdown
   title: Communication
   body: "Course communication will be conducted through Piazza, please join via this\
-    \ [**link**](https://piazza.com/buffalo/spring2026/cse589).\r\nFor **Access Code**:\
+    \ [**link**](https://piazza.com/buffalo/fall2026/cse589).\r\nFor **Access Code**:\
     \ You should find it under the Announcements tab in **UBLearns Brightspace**."
 - type: people
   title: Instructor & Teaching Assistants
+  body: ''
 - type: markdown
   title: Course Policies
   body: "**Late policy:** All assignments are due on the day and time posted.\r\n\

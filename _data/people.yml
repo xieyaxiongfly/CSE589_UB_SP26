@@ -6,18 +6,4 @@ instructors:
   office_hours: By appointment - please email to schedule
   webpage: https://xieyaxiongfly.github.io
   profile_pic: /_images/pp/yaxiong.jpeg
-- name: Chunming Qiao
-  title: ' SUNY Distinguished Professor'
-  email: qiao@buffalo.edu
-  office: 312 Davis Hall
-  office_hours: ''
-  webpage: https://cse.buffalo.edu/~qiao/index.htm
-  profile_pic: /_images/pp/20260112_222700_chunming.jpg
-teaching_assistants:
-- name: Xingyu Wang
-  email: xwang282@buffalo.edu
-  office: Davis 309 Desk 5
-  office_hours: Monday from 1:00 PM to 3:00 PM
-  profile_pic: /_images/pp/20260127_232007_xingyu.jpg
-  webpage: ''
-  bio: ''
+teaching_assistants: []
